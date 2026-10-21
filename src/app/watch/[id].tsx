@@ -9,13 +9,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CoinBalanceChip } from "@/components/CoinBalanceChip";
 import { EpisodePage } from "@/components/EpisodePage";
 import { LockSheet } from "@/components/LockSheet";
+import { RewardSheet } from "@/components/RewardSheet";
 import { SwipeHint } from "@/components/SwipeHint";
-import { clampEpisodeIndex, findSeries } from "@/data/series";
+import { clampEpisodeIndex, durationToSeconds, findSeries } from "@/data/series";
 import type { Series } from "@/data/series";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useWheelPaging } from "@/hooks/useWheelPaging";
 import { useAppDispatch } from "@/store/hooks";
 import { setEpisode } from "@/store/playerSlice";
+import { offerRewardIfEarned } from "@/store/rewardsSlice";
 import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 
@@ -72,6 +74,27 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
     }
   };
 
+  // When an episode ends the reward sheet goes first (if the episode earned one), and the feed moves
+  // on to the next episode once the sheet is closed. Without a reward it moves on straight away.
+  const afterReward = useRef<number | null>(null);
+  const onEpisodeEnded = (index: number, watchedSeconds: number) => {
+    const offered = dispatch(
+      offerRewardIfEarned({
+        seriesId: series.id,
+        index,
+        watchedSeconds,
+        episodeSeconds: durationToSeconds(series.episodes[index].duration),
+      }),
+    );
+    if (offered) afterReward.current = index;
+    else goToNext(index);
+  };
+  const onRewardDone = () => {
+    if (afterReward.current === null) return;
+    goToNext(afterReward.current);
+    afterReward.current = null;
+  };
+
   return (
     <View
       style={styles.container}
@@ -88,7 +111,7 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
               index={index}
               height={height}
               active={index === activeIndex}
-              onEnded={() => goToNext(index)}
+              onEnded={(watchedSeconds) => onEpisodeEnded(index, watchedSeconds)}
             />
           )}
           pagingEnabled
@@ -113,6 +136,7 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
       </View>
 
       <LockSheet />
+      <RewardSheet onDone={onRewardDone} />
 
       <Pressable
         style={({ pressed }) => [styles.back, { top: insets.top + 8 }, pressed && pressedStyle]}

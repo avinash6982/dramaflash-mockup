@@ -13,13 +13,14 @@ import { EpisodeProgress } from "./EpisodeProgress";
 type Props = {
   episode: Episode;
   active: boolean;
-  onEnded: () => void;
+  // called once when the episode ends, with the seconds that really played (seeks do not count)
+  onEnded: (watchedSeconds: number) => void;
 };
 
 // The short clip loops for the whole listed episode length. "elapsed" is the time in the episode;
 // "lastClipTime" is where the clip was at the last update, to notice when the clip wraps around.
-type Timeline = { elapsed: number; lastClipTime: number };
-const START: Timeline = { elapsed: 0, lastClipTime: 0 };
+type Timeline = { elapsed: number; lastClipTime: number; watched: number };
+const START: Timeline = { elapsed: 0, lastClipTime: 0, watched: 0 };
 
 // While dragging, the picture follows the finger this often (seeking on every move would flood the player)
 const PREVIEW_INTERVAL_MS = 100;
@@ -29,7 +30,11 @@ function advance(timeline: Timeline, clipTime: number, clipLength: number): Time
   let delta = clipTime - timeline.lastClipTime;
   if (delta < 0) delta += clipLength;
   if (delta > 1) delta = 0; // a seek, not playback
-  return { elapsed: timeline.elapsed + delta, lastClipTime: clipTime };
+  return {
+    elapsed: timeline.elapsed + delta,
+    lastClipTime: clipTime,
+    watched: timeline.watched + delta, // dragging the bar moves elapsed but never this
+  };
 }
 
 // One playable episode. Only the active page plays; the others stay paused at the start.
@@ -81,8 +86,10 @@ export function EpisodeVideo({ episode, active, onEnded }: Props) {
   // newest values through refs. The position being dragged to lives in scrubRef.
   const scrubRef = useRef<number | null>(null);
   const onEndedRef = useRef(onEnded);
+  const watchedRef = useRef(0); // the newest watched seconds, for the stable drag handler below
   useEffect(() => {
     onEndedRef.current = onEnded;
+    watchedRef.current = timeline.watched;
   });
 
   const handleScrub = useCallback((seconds: number) => {
@@ -98,8 +105,12 @@ export function EpisodeVideo({ episode, active, onEnded }: Props) {
     if (seconds === null) return; // nothing was being dragged
     const clipLength = player.duration || 1;
     player.seekBy((seconds % clipLength) - player.currentTime);
-    setTimeline({ elapsed: seconds, lastClipTime: seconds % clipLength });
-    if (seconds >= total - 0.1) onEndedRef.current(); // dragged to the very end: same as finishing
+    setTimeline((current) => ({
+      ...current,
+      elapsed: seconds,
+      lastClipTime: seconds % clipLength,
+    }));
+    if (seconds >= total - 0.1) onEndedRef.current(watchedRef.current); // dragged to the very end
   }, [player, total]);
 
   // Live preview while the finger moves: show the frame for that moment, at a steady pace
@@ -116,7 +127,7 @@ export function EpisodeVideo({ episode, active, onEnded }: Props) {
     if (!active || scrubbing) return;
     const next = advance(timeline, event.currentTime, player.duration || 1);
     setTimeline(next);
-    if (next.elapsed >= total && !ended) onEnded();
+    if (next.elapsed >= total && !ended) onEnded(next.watched);
   });
 
   const togglePlayback = () => {

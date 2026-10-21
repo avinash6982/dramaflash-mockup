@@ -2,12 +2,13 @@ import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit";
 
 import { coinPacks, STARTING_COINS } from "@/data/coinPacks";
 
+import { claimReward } from "./rewardsSlice";
 import { unlockEpisode, unlockSeason } from "./unlocksSlice";
 
 export type Transaction = {
   id: string;
-  kind: "purchase" | "unlock";
-  coins: number; // positive for a purchase, negative for an unlock
+  kind: "purchase" | "unlock" | "reward";
+  coins: number; // positive for a purchase or a reward, negative for an unlock
   createdAt: number;
 };
 
@@ -65,6 +66,9 @@ const walletSlice = createSlice({
       })
       .addCase(unlockSeason.fulfilled, (state, action) => {
         addTransaction(state, "unlock", -action.payload.cost);
+      })
+      .addCase(claimReward, (state, action) => {
+        addTransaction(state, "reward", action.payload.coins);
       });
   },
 });

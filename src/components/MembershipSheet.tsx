@@ -29,7 +29,6 @@ export function MembershipSheet() {
     sheetRef.current?.dismiss();
   };
 
-  // Short sheet: the button sits in the content, not in a fixed footer (that is for tall sheets)
   const actions = (
     <View>
       <View style={styles.secure}>

@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { CoinBalanceChip } from "@/components/CoinBalanceChip";
 import { EpisodeRow } from "@/components/EpisodeRow";
 import { Rail } from "@/components/Rail";
 import { SeasonBanner } from "@/components/SeasonBanner";
@@ -20,7 +19,7 @@ import { useLocalized } from "@/hooks/useLocalized";
 import { formatEuro } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { isFavouriteSeries, toggleFavouriteSeries } from "@/store/favouritesSlice";
-import { isSeasonUnlocked, purchaseSeason } from "@/store/unlocksSlice";
+import { isSeasonUnlocked, openSeasonSheet } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
@@ -185,7 +184,7 @@ function SeriesDetail({ series }: { series: Series }) {
             <SeasonBanner
               priceLabel={formatEuro(SEASON_PRICE_EUR, i18n.language)}
               purchasing={purchasing}
-              onPress={() => dispatch(purchaseSeason(series.id))}
+              onPress={() => dispatch(openSeasonSheet(series.id))}
             />
           )}
 
@@ -229,7 +228,6 @@ function SeriesDetail({ series }: { series: Series }) {
         >
           <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
         </Pressable>
-        <CoinBalanceChip />
         <Pressable
           style={({ pressed }) => [styles.topButton, pressed && pressedStyle]}
           onPress={share}

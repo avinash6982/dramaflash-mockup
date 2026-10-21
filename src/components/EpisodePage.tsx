@@ -15,7 +15,7 @@ type Props = {
   index: number;
   height: number; // one page is exactly one screen tall
   active: boolean;
-  onEnded: () => void;
+  onEnded: (watchedSeconds: number) => void;
 };
 
 // One full-screen page of the vertical feed: the video, or the lock card, plus the overlay

@@ -54,3 +54,6 @@ coverage/
 
 # Docs
 CLAUDE.md
+
+# Drafts written by helper agents (not part of the repo)
+.drafts/

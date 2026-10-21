@@ -14,6 +14,7 @@ export type SavedState = {
     "unlockedEpisodeIds" | "unlockedSeriesIds" | "premium" | "premiumRenewsOn" | "premiumCancelled"
   >;
   favourites: RootState["favourites"];
+  rewards: Pick<RootState["rewards"], "claimedEpisodeIds">;
 };
 
 export function pickSavedState(state: RootState): SavedState {
@@ -28,6 +29,7 @@ export function pickSavedState(state: RootState): SavedState {
       premiumCancelled: unlocks.premiumCancelled,
     },
     favourites,
+    rewards: { claimedEpisodeIds: state.rewards.claimedEpisodeIds },
   };
 }
 
@@ -40,7 +42,7 @@ export function parseSavedState(json: string | null, now: number): SavedState | 
   if (!json) return null;
   try {
     const saved = JSON.parse(json) as SavedState;
-    const { wallet, unlocks, favourites } = saved;
+    const { wallet, unlocks, favourites, rewards } = saved;
     const valid =
       typeof wallet?.coins === "number" &&
       Array.isArray(wallet.transactions) &&
@@ -48,8 +50,10 @@ export function parseSavedState(json: string | null, now: number): SavedState | 
       isStringList(unlocks?.unlockedSeriesIds) &&
       typeof unlocks.premium === "boolean" &&
       isStringList(favourites?.seriesIds) &&
-      isStringList(favourites?.likedEpisodeIds);
+      isStringList(favourites?.likedEpisodeIds) &&
+      (rewards === undefined || isStringList(rewards.claimedEpisodeIds)); // older saves have none
     if (!valid) return null;
+    saved.rewards = rewards ?? { claimedEpisodeIds: [] };
 
     const ended = unlocks.premiumCancelled && (unlocks.premiumRenewsOn ?? 0) < now;
     if (ended) {

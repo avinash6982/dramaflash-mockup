@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { EPISODE_UNLOCK_COST, MEMBERSHIP, SEASON_UNLOCK_COST } from "@/data/coinPacks";
 import type { UnlockChoice } from "@/data/coinPacks";
@@ -9,7 +9,6 @@ import { findSeries } from "@/data/series";
 import { formatEuro, formatNumber } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setUnlockChoice } from "@/store/playerSlice";
-import { unlockSelected } from "@/store/unlockFlow";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
@@ -17,25 +16,17 @@ import { fonts } from "@/theme/typography";
 import { UnlockOption } from "./UnlockOption";
 
 type Props = {
-  onUnlocked: () => void; // the choice was unlocked
-  onNeedCoins: () => void; // too few coins: the sheet moves on to the recharge step
+  onContinue: () => void; // the sheet decides what comes next (confirm, or buy coins first)
   onMaybeLater: () => void;
 };
 
 // Step 1 of the unlock sheet, "Continue the romance": choose what to unlock, then Unlock Now.
-export function UnlockChoiceStep({ onUnlocked, onNeedCoins, onMaybeLater }: Props) {
+export function UnlockChoiceStep({ onContinue, onMaybeLater }: Props) {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { seriesId, episodeIndex, unlockChoice } = useAppSelector((state) => state.player);
-  const purchasingPremium = useAppSelector((state) => state.unlocks.premiumBusy);
 
   const series = findSeries(seriesId ?? undefined);
-
-  const unlockNow = async () => {
-    const result = await dispatch(unlockSelected()).unwrap();
-    if (result === "unlocked") onUnlocked();
-    else onNeedCoins(); // too few coins: buy some, which unlocks right after
-  };
 
   const option = (choice: UnlockChoice) => ({
     selected: unlockChoice === choice,
@@ -99,18 +90,11 @@ export function UnlockChoiceStep({ onUnlocked, onNeedCoins, onMaybeLater }: Prop
 
           <Pressable
             style={({ pressed }) => [styles.unlock, pressed && pressedStyle]}
-            onPress={unlockNow}
-            disabled={purchasingPremium}
+            onPress={onContinue}
             accessibilityRole="button"
           >
-            {purchasingPremium ? (
-              <ActivityIndicator color={colors.onPrimary} />
-            ) : (
-              <>
-                <Ionicons name="lock-open-outline" size={18} color={colors.onPrimary} />
-                <Text style={styles.unlockText}>{t("lockSheet.unlockNow")}</Text>
-              </>
-            )}
+            <Ionicons name="lock-open-outline" size={18} color={colors.onPrimary} />
+            <Text style={styles.unlockText}>{t("lockSheet.unlockNow")}</Text>
           </Pressable>
 
           <Pressable

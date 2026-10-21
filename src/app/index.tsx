@@ -8,6 +8,9 @@ import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import { useEvent } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+
+import { setLanguage } from "@/i18n";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -19,6 +22,7 @@ const MIN_BOTTOM_PADDING = 16;
 
 export default function Index() {
   const insets = useSafeAreaInsets();
+  const { t, i18n } = useTranslation();
   const sheetRef = useRef<BottomSheetModal>(null);
 
   const player = useVideoPlayer(videoSource, (p) => {
@@ -49,6 +53,13 @@ export default function Index() {
         playsInline
       />
       <Text style={styles.status}>{isPlaying ? "Playing" : "Paused"}</Text>
+      <Text style={styles.status}>{t("home.watchNow")}</Text>
+      <Pressable
+        style={styles.button}
+        onPress={() => setLanguage(i18n.language === "en" ? "de" : "en")}
+      >
+        <Text style={styles.buttonText}>{i18n.language.toUpperCase()}</Text>
+      </Pressable>
 
       <Pressable style={styles.button} onPress={() => sheetRef.current?.present()}>
         <Text style={styles.buttonText}>Open sheet</Text>

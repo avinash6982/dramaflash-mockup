@@ -5,3 +5,10 @@ export function formatEuro(amount: number, language: string): string {
     currency: "EUR",
   }).format(amount);
 }
+
+// Short count for like numbers: "12K" in English, "12.000" in German
+export function formatCount(count: number, language: string): string {
+  return new Intl.NumberFormat(language === "de" ? "de-DE" : "en", {
+    notation: "compact",
+  }).format(count);
+}

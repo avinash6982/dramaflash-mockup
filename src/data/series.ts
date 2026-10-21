@@ -1,3 +1,4 @@
+import type { VideoSource } from "expo-video";
 import type { ImageSourcePropType } from "react-native";
 
 import type { LocalizedText } from "@/i18n/localized";
@@ -18,7 +19,7 @@ export type Episode = {
   title: LocalizedText;
   duration: string;
   thumb: ImageSourcePropType;
-  videoUri: string;
+  video: VideoSource;
 };
 
 export type CastMember = {
@@ -46,8 +47,27 @@ export type Series = {
   episodes: Episode[];
 };
 
-// Placeholder clip until the short vertical clips are added (task: vertical player)
-const SAMPLE_CLIP = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+// Short silent vertical clips (6 s, slow zoom or pan over each series' artwork), see assets/videos.
+// Real episodes would be streamed (HLS); the mock-up bundles small files so it works offline.
+const videos = {
+  ceo1: require("../../assets/videos/ceos-secret-life-1.mp4"),
+  ceo2: require("../../assets/videos/ceos-secret-life-2.mp4"),
+  ceo3: require("../../assets/videos/ceos-secret-life-3.mp4"),
+  ceo4: require("../../assets/videos/ceos-secret-life-4.mp4"),
+  veLiebe: require("../../assets/videos/verbotene-liebe.mp4"),
+  ceoAndI: require("../../assets/videos/der-ceo-und-ich.mp4"),
+  mySecretLife: require("../../assets/videos/mein-geheimes-leben.mp4"),
+  loveOnDetours: require("../../assets/videos/liebe-auf-umwegen.mp4"),
+  bloodyRoses: require("../../assets/videos/blutige-rosen.mp4"),
+  shadowKiss: require("../../assets/videos/schattenkuss.mp4"),
+  darkDesire: require("../../assets/videos/dunkle-begierde.mp4"),
+  avengingAngel: require("../../assets/videos/racheengel.mp4"),
+  bandOfFate: require("../../assets/videos/schicksalsband.mp4"),
+  secondChance: require("../../assets/videos/zweite-chance.mp4"),
+  forbiddenVows: require("../../assets/videos/forbidden-vows.mp4"),
+  fastLane: require("../../assets/videos/love-in-the-fast-lane.mp4"),
+  heirsDilemma: require("../../assets/videos/the-heirs-dilemma.mp4"),
+};
 
 const images = {
   veLiebe: require("../../assets/images/hero-echoes-of-eternity.webp"),
@@ -68,19 +88,23 @@ const images = {
 
 // The design only has real episodes for The CEO's Secret Life (with its placeholder dragon art)
 const ceoEpisodes: Episode[] = [
-  { title: { en: "The Accidental Message", de: "Die falsch gesendete Nachricht" }, duration: "3:12", thumb: require("../../assets/images/ep-thumb-1.webp"), videoUri: SAMPLE_CLIP },
-  { title: { en: "Coffee and Contracts", de: "Kaffee und Verträge" }, duration: "2:55", thumb: require("../../assets/images/ep-thumb-2.webp"), videoUri: SAMPLE_CLIP },
-  { title: { en: "A Glimpse Behind the Mask", de: "Ein Blick hinter die Maske" }, duration: "3:30", thumb: require("../../assets/images/ep-thumb-3.webp"), videoUri: SAMPLE_CLIP },
-  { title: { en: "The Gala Encounter", de: "Die Begegnung auf der Gala" }, duration: "4:05", thumb: require("../../assets/images/ep-thumb-4.webp"), videoUri: SAMPLE_CLIP },
-  { title: { en: "Misunderstandings", de: "Missverständnisse" }, duration: "2:48", thumb: require("../../assets/images/ep-thumb-5-locked.webp"), videoUri: SAMPLE_CLIP },
-  { title: { en: "Midnight Confessions", de: "Geständnisse um Mitternacht" }, duration: "3:15", thumb: require("../../assets/images/ep-thumb-6-locked.webp"), videoUri: SAMPLE_CLIP },
+  { title: { en: "The Accidental Message", de: "Die falsch gesendete Nachricht" }, duration: "3:12", thumb: require("../../assets/images/ep-thumb-1.webp"), video: videos.ceo1 },
+  { title: { en: "Coffee and Contracts", de: "Kaffee und Verträge" }, duration: "2:55", thumb: require("../../assets/images/ep-thumb-2.webp"), video: videos.ceo2 },
+  { title: { en: "A Glimpse Behind the Mask", de: "Ein Blick hinter die Maske" }, duration: "3:30", thumb: require("../../assets/images/ep-thumb-3.webp"), video: videos.ceo3 },
+  { title: { en: "The Gala Encounter", de: "Die Begegnung auf der Gala" }, duration: "4:05", thumb: require("../../assets/images/ep-thumb-4.webp"), video: videos.ceo4 },
+  { title: { en: "Misunderstandings", de: "Missverständnisse" }, duration: "2:48", thumb: require("../../assets/images/ep-thumb-5-locked.webp"), video: videos.ceo1 },
+  { title: { en: "Midnight Confessions", de: "Geständnisse um Mitternacht" }, duration: "3:15", thumb: require("../../assets/images/ep-thumb-6-locked.webp"), video: videos.ceo2 },
 ];
 
 // Every other series gets plain "Episode N" rows with its own poster as thumbnail, and durations
 // around its minutes per episode, so nothing on screen contradicts anything else.
 const durationOffsetsInSeconds = [12, -5, 30, 65, -12, 15];
 
-function plainEpisodes(poster: ImageSourcePropType, minutesPerEpisode: number): Episode[] {
+function plainEpisodes(
+  poster: ImageSourcePropType,
+  video: VideoSource,
+  minutesPerEpisode: number,
+): Episode[] {
   return durationOffsetsInSeconds.map((offset, index) => {
     const seconds = minutesPerEpisode * 60 + offset;
     const duration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
@@ -88,7 +112,7 @@ function plainEpisodes(poster: ImageSourcePropType, minutesPerEpisode: number): 
       title: { en: `Episode ${index + 1}`, de: `Folge ${index + 1}` },
       duration,
       thumb: poster,
-      videoUri: SAMPLE_CLIP,
+      video,
     };
   });
 }
@@ -122,7 +146,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.veLiebe,
-    episodes: plainEpisodes(images.veLiebe, 2),
+    episodes: plainEpisodes(images.veLiebe, videos.veLiebe, 2),
   },
   {
     ...base,
@@ -152,7 +176,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.ceoAndI,
-    episodes: plainEpisodes(images.ceoAndI, 2),
+    episodes: plainEpisodes(images.ceoAndI, videos.ceoAndI, 2),
   },
   {
     ...base,
@@ -165,7 +189,7 @@ export const series: Series[] = [
     minutesPerEpisode: 1,
     isPro: false,
     poster: images.mySecretLife,
-    episodes: plainEpisodes(images.mySecretLife, 1),
+    episodes: plainEpisodes(images.mySecretLife, videos.mySecretLife, 1),
   },
   {
     ...base,
@@ -178,7 +202,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.loveOnDetours,
-    episodes: plainEpisodes(images.loveOnDetours, 2),
+    episodes: plainEpisodes(images.loveOnDetours, videos.loveOnDetours, 2),
   },
   {
     ...base,
@@ -191,7 +215,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.bloodyRoses,
-    episodes: plainEpisodes(images.bloodyRoses, 2),
+    episodes: plainEpisodes(images.bloodyRoses, videos.bloodyRoses, 2),
   },
   {
     ...base,
@@ -207,7 +231,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.shadowKiss,
-    episodes: plainEpisodes(images.shadowKiss, 2),
+    episodes: plainEpisodes(images.shadowKiss, videos.shadowKiss, 2),
   },
   {
     ...base,
@@ -220,7 +244,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.darkDesire,
-    episodes: plainEpisodes(images.darkDesire, 2),
+    episodes: plainEpisodes(images.darkDesire, videos.darkDesire, 2),
   },
   {
     ...base,
@@ -236,7 +260,7 @@ export const series: Series[] = [
     minutesPerEpisode: 3,
     isPro: true,
     poster: images.avengingAngel,
-    episodes: plainEpisodes(images.avengingAngel, 3),
+    episodes: plainEpisodes(images.avengingAngel, videos.avengingAngel, 3),
   },
   {
     ...base,
@@ -252,7 +276,7 @@ export const series: Series[] = [
     minutesPerEpisode: 1,
     isPro: false,
     poster: images.bandOfFate,
-    episodes: plainEpisodes(images.bandOfFate, 1),
+    episodes: plainEpisodes(images.bandOfFate, videos.bandOfFate, 1),
   },
   {
     ...base,
@@ -265,7 +289,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.secondChance,
-    episodes: plainEpisodes(images.secondChance, 2),
+    episodes: plainEpisodes(images.secondChance, videos.secondChance, 2),
   },
   {
     ...base,
@@ -281,7 +305,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.forbiddenVows,
-    episodes: plainEpisodes(images.forbiddenVows, 2),
+    episodes: plainEpisodes(images.forbiddenVows, videos.forbiddenVows, 2),
   },
   {
     ...base,
@@ -297,7 +321,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.fastLane,
-    episodes: plainEpisodes(images.fastLane, 2),
+    episodes: plainEpisodes(images.fastLane, videos.fastLane, 2),
   },
   {
     ...base,
@@ -313,7 +337,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.heirsDilemma,
-    episodes: plainEpisodes(images.heirsDilemma, 2),
+    episodes: plainEpisodes(images.heirsDilemma, videos.heirsDilemma, 2),
   },
 ];
 

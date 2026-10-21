@@ -16,7 +16,7 @@ import type { Series } from "@/data/series";
 import { useBottomInset } from "@/hooks/useBottomInset";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useLocalized } from "@/hooks/useLocalized";
-import { formatEuro } from "@/i18n/formatPrice";
+import { formatEuro } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { isSeasonUnlocked, purchaseSeason } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";

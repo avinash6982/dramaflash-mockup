@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 
+import { AppFrame } from "@/components/AppFrame";
 import { ErrorScreen } from "@/components/ErrorScreen";
 import { initI18n } from "@/i18n";
 import { store } from "@/store";
@@ -43,12 +44,14 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <ThemeProvider value={navigationTheme}>
-        <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
-          <BottomSheetModalProvider>
-            <StatusBar style="light" />
-            <Stack screenOptions={{ headerShown: false }} />
-          </BottomSheetModalProvider>
-        </GestureHandlerRootView>
+        <AppFrame>
+          <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+            <BottomSheetModalProvider>
+              <StatusBar style="light" />
+              <Stack screenOptions={{ headerShown: false }} />
+            </BottomSheetModalProvider>
+          </GestureHandlerRootView>
+        </AppFrame>
       </ThemeProvider>
     </Provider>
   );

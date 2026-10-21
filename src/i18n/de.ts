@@ -39,6 +39,11 @@ export const de: typeof en = {
     action: "Action",
     mystery: "Mystery",
   },
+  player: {
+    episodeShort: "Folge {{number}}",
+    unlockEpisode: "Folge {{number}} freischalten",
+    like: "Gefällt mir",
+  },
   home: {
     watchNow: "Jetzt ansehen",
     seeAll: "Alle anzeigen",

@@ -10,7 +10,6 @@ export const en = {
   common: {
     notFoundTitle: "Page not found",
     goHome: "Go to Home",
-    comingSoon: "Coming soon",
   },
   series: {
     showMoreEpisodes: "Show more episodes",
@@ -64,6 +63,7 @@ export const en = {
     close: "Back",
   },
   profile: {
+    language: "Language",
     coinBalance: "Coin balance",
     recharge: "Recharge",
     membership: "Membership",
@@ -79,6 +79,28 @@ export const en = {
     resetNote: "For testing: coins, unlocks, membership and favourites go back to the start.",
     keep: "Keep it",
     confirmCancel: "Yes, cancel",
+  },
+  discover: {
+    searchPlaceholder: "Search titles or genres",
+    clear: "Clear",
+    browseByGenre: "Browse by genre",
+    topRated: "Top rated",
+    newReleases: "New releases",
+    noResults: "No results for \u201c{{query}}\u201d",
+    noResultsHint: "Try another title or genre.",
+    results: "{{count}} results",
+  },
+  library: {
+    premiumOn: "Premium: every episode is unlocked",
+    unlocked: "Unlocked",
+    fullSeason: "Full season",
+    episodesUnlocked_one: "{{count}} episode unlocked",
+    episodesUnlocked_other: "{{count}} episodes unlocked",
+    coinHistory: "Coin history",
+    coinsBought: "Coins purchased",
+    unlockedWithCoins: "Unlocked with coins",
+    emptyTitle: "Nothing here yet",
+    emptyHint: "Unlock an episode and it shows up here.",
   },
   favourites: {
     emptyTitle: "Nothing saved yet",
@@ -102,6 +124,7 @@ export const en = {
     like: "Like",
   },
   home: {
+    backToTop: "Back to top",
     watchNow: "Watch now",
     seeAll: "See all",
     trendingRomance: "Trending Romance",

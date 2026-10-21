@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MembershipCard } from "@/components/MembershipCard";
 import { formatDate, formatNumber } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setLanguage } from "@/i18n";
+import type { Language } from "@/i18n/localized";
 import { hasDemoChanges, resetDemo } from "@/store";
 import { cancelPremium, membershipStatus, openMembershipSheet } from "@/store/unlocksSlice";
 import { openBuyCoinsSheet } from "@/store/walletSlice";
@@ -14,8 +16,14 @@ import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
-// Coin balance with Recharge, and the membership (subscribe, cancel, resubscribe).
+// The language (EN / DE), the coin balance with Recharge, and the membership (subscribe, cancel, resubscribe).
 // Everything is mocked and kept for the session only. The reset button at the bottom is for testing.
+// Language names are shown in their own language, the way people look for them
+const languages: { code: Language; name: string }[] = [
+  { code: "en", name: "English" },
+  { code: "de", name: "Deutsch" },
+];
+
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
@@ -123,6 +131,32 @@ export default function ProfileScreen() {
         )}
       </View>
 
+      <View style={styles.card}>
+        <Text style={styles.label}>{t("profile.language")}</Text>
+        <View style={styles.languages}>
+          {languages.map((option) => {
+            const selected = i18n.language === option.code;
+            return (
+              <Pressable
+                key={option.code}
+                style={({ pressed }) => [
+                  styles.language,
+                  selected && styles.languageSelected,
+                  pressed && pressedStyle,
+                ]}
+                onPress={() => setLanguage(option.code)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+              >
+                <Text style={[styles.languageText, selected && styles.languageTextSelected]}>
+                  {option.name}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
       {canReset && (
         <View style={styles.reset}>
           <Pressable
@@ -144,6 +178,19 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: 20, paddingBottom: 32, gap: 16 },
   title: { fontFamily: fonts.display, fontSize: 28, color: colors.textPrimary },
+  languages: { flexDirection: "row", gap: 10 },
+  language: {
+    flex: 1,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  languageSelected: { borderColor: colors.primary, backgroundColor: "rgba(100,237,247,0.1)" },
+  languageText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textMuted },
+  languageTextSelected: { fontFamily: fonts.bodySemiBold, color: colors.primary },
   membership: { gap: 12 },
   card: {
     gap: 12,

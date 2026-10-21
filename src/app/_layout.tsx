@@ -13,7 +13,8 @@ import { BuyCoinsSheet } from "@/components/BuyCoinsSheet";
 import { ErrorScreen } from "@/components/ErrorScreen";
 import { MembershipSheet } from "@/components/MembershipSheet";
 import { initI18n } from "@/i18n";
-import { store } from "@/store";
+import { restoreSaved, store } from "@/store";
+import { loadSavedState, startSaving } from "@/store/persist";
 import { colors } from "@/theme/colors";
 import { navigationTheme } from "@/theme/navigationTheme";
 import { fontAssets } from "@/theme/typography";
@@ -33,8 +34,14 @@ export default function RootLayout() {
   const ready = i18nReady && (fontsLoaded || fontError !== null);
 
   useEffect(() => {
+    // The saved language and the saved data are loaded before the first screen, so nothing flashes.
     // finally: if setup fails the app still opens (texts fall back to their keys) instead of hanging on the splash
-    initI18n().finally(() => setI18nReady(true));
+    Promise.all([initI18n(), loadSavedState()])
+      .then(([, saved]) => {
+        if (saved) store.dispatch(restoreSaved(saved));
+        startSaving(store);
+      })
+      .finally(() => setI18nReady(true));
   }, []);
 
   useEffect(() => {

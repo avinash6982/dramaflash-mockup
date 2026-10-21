@@ -12,19 +12,23 @@ type Props = {
   title: string;
   series: Series[];
   onPressSeries: (id: string) => void;
-  showSeeAll?: boolean;
+  onSeeAll?: () => void; // when given, the "See all" link is shown
 };
 
 // A titled row of posters that scrolls sideways
-export function Rail({ title, series, onPressSeries, showSeeAll = true }: Props) {
+export function Rail({ title, series, onPressSeries, onSeeAll }: Props) {
   const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        {showSeeAll && (
-          <Pressable style={({ pressed }) => pressed && pressedStyle} accessibilityRole="button">
+        {onSeeAll && (
+          <Pressable
+            style={({ pressed }) => pressed && pressedStyle}
+            onPress={onSeeAll}
+            accessibilityRole="button"
+          >
             <Text style={styles.seeAll}>{t("home.seeAll")}</Text>
           </Pressable>
         )}

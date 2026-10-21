@@ -12,7 +12,6 @@ export const de: typeof en = {
   common: {
     notFoundTitle: "Seite nicht gefunden",
     goHome: "Zur Startseite",
-    comingSoon: "Demnächst",
   },
   series: {
     showMoreEpisodes: "Weitere Folgen anzeigen",
@@ -66,6 +65,7 @@ export const de: typeof en = {
     close: "Zurück",
   },
   profile: {
+    language: "Sprache",
     coinBalance: "Coin-Guthaben",
     recharge: "Aufladen",
     membership: "Mitgliedschaft",
@@ -82,6 +82,28 @@ export const de: typeof en = {
       "Zum Testen: Coins, Freischaltungen, Mitgliedschaft und Favoriten werden zurückgesetzt.",
     keep: "Behalten",
     confirmCancel: "Ja, kündigen",
+  },
+  discover: {
+    searchPlaceholder: "Titel oder Genre suchen",
+    clear: "Leeren",
+    browseByGenre: "Nach Genre stöbern",
+    topRated: "Am besten bewertet",
+    newReleases: "Neuerscheinungen",
+    noResults: "Keine Ergebnisse für \u201e{{query}}\u201c",
+    noResultsHint: "Versuche einen anderen Titel oder ein anderes Genre.",
+    results: "{{count}} Ergebnisse",
+  },
+  library: {
+    premiumOn: "Premium: Alle Folgen sind freigeschaltet",
+    unlocked: "Freigeschaltet",
+    fullSeason: "Alle Folgen",
+    episodesUnlocked_one: "{{count}} Folge freigeschaltet",
+    episodesUnlocked_other: "{{count}} Folgen freigeschaltet",
+    coinHistory: "Coin-Verlauf",
+    coinsBought: "Coins gekauft",
+    unlockedWithCoins: "Mit Coins freigeschaltet",
+    emptyTitle: "Hier ist noch nichts",
+    emptyHint: "Schalte eine Folge frei, dann erscheint sie hier.",
   },
   favourites: {
     emptyTitle: "Noch nichts gespeichert",
@@ -105,6 +127,7 @@ export const de: typeof en = {
     like: "Gefällt mir",
   },
   home: {
+    backToTop: "Nach oben",
     watchNow: "Jetzt ansehen",
     seeAll: "Alle anzeigen",
     trendingRomance: "Angesagte Romanzen",

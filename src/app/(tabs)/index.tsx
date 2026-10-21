@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
@@ -21,6 +21,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [genre, setGenre] = useState<GenreId | null>(null); // null means "All"
   const [headerSolid, setHeaderSolid] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setHeaderSolid(event.nativeEvent.contentOffset.y > HEADER_SOLID_OFFSET);
@@ -44,6 +45,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -62,12 +64,18 @@ export default function HomeScreen() {
                 title={t(`home.${rail.key}`)}
                 series={rail.series}
                 onPressSeries={openSeries}
+                onSeeAll={() =>
+                  router.push({ pathname: "/category/[key]", params: { key: rail.key } })
+                }
               />
             ))}
           </View>
         ))}
       </ScrollView>
-      <HomeHeader solid={headerSolid} />
+      <HomeHeader
+        solid={headerSolid}
+        onLogoPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })}
+      />
     </View>
   );
 }

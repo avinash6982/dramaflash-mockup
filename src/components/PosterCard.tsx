@@ -11,11 +11,11 @@ import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 export const POSTER_WIDTH = 128;
-const POSTER_HEIGHT = 192;
+const POSTER_RATIO = 1.5; // height / width
 
-type Props = { series: Series; onPress: () => void };
+type Props = { series: Series; onPress: () => void; width?: number };
 
-export function PosterCard({ series, onPress }: Props) {
+export function PosterCard({ series, onPress, width = POSTER_WIDTH }: Props) {
   const { t } = useTranslation();
   const localized = useLocalized();
   const title = localized(series.title);
@@ -27,17 +27,14 @@ export function PosterCard({ series, onPress }: Props) {
       accessibilityRole="button"
       accessibilityLabel={title}
     >
-      <View style={styles.poster}>
+      <View style={[styles.poster, { width, height: Math.round(width * POSTER_RATIO) }]}>
         <Image
           source={series.poster}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           transition={IMAGE_FADE_MS}
         />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.85)"]}
-          style={styles.bottomFade}
-        />
+        <LinearGradient colors={["transparent", "rgba(0,0,0,0.85)"]} style={styles.bottomFade} />
         {series.isPro && (
           <LinearGradient
             colors={colors.gradient}
@@ -56,7 +53,7 @@ export function PosterCard({ series, onPress }: Props) {
           </Text>
         </View>
       </View>
-      <Text style={styles.title} numberOfLines={2}>
+      <Text style={[styles.title, { width }]} numberOfLines={2}>
         {title}
       </Text>
     </Pressable>
@@ -65,8 +62,6 @@ export function PosterCard({ series, onPress }: Props) {
 
 const styles = StyleSheet.create({
   poster: {
-    width: POSTER_WIDTH,
-    height: POSTER_HEIGHT,
     borderRadius: 12,
     overflow: "hidden",
     borderWidth: 1,
@@ -96,7 +91,6 @@ const styles = StyleSheet.create({
   },
   metaText: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textPrimary },
   title: {
-    width: POSTER_WIDTH,
     marginTop: 8,
     fontFamily: fonts.displaySemiBold,
     fontSize: 15,

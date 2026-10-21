@@ -29,6 +29,10 @@ export const de: typeof en = {
     share: "Teilen",
     addToFavourites: "Zu Favoriten hinzufügen",
   },
+  favourites: {
+    emptyTitle: "Noch nichts gespeichert",
+    emptyHint: "Tippe bei einer Serie auf das Herz, um sie hier zu speichern.",
+  },
   genres: {
     romance: "Romantik",
     drama: "Drama",

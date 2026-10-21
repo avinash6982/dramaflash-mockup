@@ -27,6 +27,10 @@ export const en = {
     share: "Share",
     addToFavourites: "Add to favourites",
   },
+  favourites: {
+    emptyTitle: "Nothing saved yet",
+    emptyHint: "Tap the heart on a series to save it here.",
+  },
   genres: {
     romance: "Romance",
     drama: "Drama",

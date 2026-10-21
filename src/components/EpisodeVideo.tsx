@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent, useEventListener } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { durationToSeconds } from "@/data/series";
@@ -14,13 +14,15 @@ type Props = {
   episode: Episode;
   active: boolean;
   onEnded: () => void;
-  onScrubbingChange: (scrubbing: boolean) => void;
 };
 
 // The short clip loops for the whole listed episode length. "elapsed" is the time in the episode;
 // "lastClipTime" is where the clip was at the last update, to notice when the clip wraps around.
 type Timeline = { elapsed: number; lastClipTime: number };
 const START: Timeline = { elapsed: 0, lastClipTime: 0 };
+
+// While dragging, the picture follows the finger this often (seeking on every move would flood the player)
+const PREVIEW_INTERVAL_MS = 100;
 
 // Seconds the episode moved since the last update, even when the clip just looped back to its start
 function advance(timeline: Timeline, clipTime: number, clipLength: number): Timeline {
@@ -31,7 +33,7 @@ function advance(timeline: Timeline, clipTime: number, clipLength: number): Time
 }
 
 // One playable episode. Only the active page plays; the others stay paused at the start.
-export function EpisodeVideo({ episode, active, onEnded, onScrubbingChange }: Props) {
+export function EpisodeVideo({ episode, active, onEnded }: Props) {
   const total = durationToSeconds(episode.duration);
   const player = useVideoPlayer(episode.video, (p) => {
     p.loop = true; // the clip repeats until the episode length is reached
@@ -39,6 +41,7 @@ export function EpisodeVideo({ episode, active, onEnded, onScrubbingChange }: Pr
     p.timeUpdateEventInterval = 0.05; // seconds between progress updates
   });
   const { status } = useEvent(player, "statusChange", { status: player.status });
+  const { isPlaying } = useEvent(player, "playingChange", { isPlaying: player.playing });
 
   const [timeline, setTimeline] = useState<Timeline>(START);
   const [userPaused, setUserPaused] = useState(false);
@@ -61,29 +64,53 @@ export function EpisodeVideo({ episode, active, onEnded, onScrubbingChange }: Pr
   // One rule decides playback: dragging, a tap-pause or the end of the episode all stop it
   const shouldPlay = active && ready && !userPaused && !scrubbing && !ended;
 
+  // Keep the player in step with the rule above. It compares with what the player reports
+  // (isPlaying comes from its events, so this runs again whenever it changes), which makes it heal
+  // itself: a play() that was interrupted by a quick pause during a seek is simply asked again.
   useEffect(() => {
-    // Always call, never compare with player.playing: that value lags behind a quick pause/play
-    if (shouldPlay) player.play();
-    else player.pause();
-  }, [shouldPlay, player]);
+    if (shouldPlay && !isPlaying) player.play();
+    else if (!shouldPlay && isPlaying) player.pause();
+  }, [shouldPlay, isPlaying, player]);
 
   // play() inside the setup callback does not start playback on web, hence the effect above.
   useEffect(() => {
     if (!active) player.seekBy(-player.currentTime);
   }, [active, player]);
 
+  // The drag handlers below never change between renders (see EpisodeProgress), so they read the
+  // newest values through refs. The position being dragged to lives in scrubRef.
+  const scrubRef = useRef<number | null>(null);
+  const onEndedRef = useRef(onEnded);
   useEffect(() => {
-    onScrubbingChange(scrubbing);
-  }, [scrubbing, onScrubbingChange]);
+    onEndedRef.current = onEnded;
+  });
 
-  const clipPosition = (seconds: number) => seconds % (player.duration || 1);
+  const handleScrub = useCallback((seconds: number) => {
+    if (!Number.isFinite(seconds)) return;
+    scrubRef.current = seconds;
+    setScrubTime(seconds);
+  }, []);
 
-  // Live preview while the finger moves: show the frame for that moment
-  useEffect(() => {
-    if (scrubTime === null) return;
+  const handleScrubEnd = useCallback(() => {
+    const seconds = scrubRef.current;
+    scrubRef.current = null;
+    setScrubTime(null); // always leave the dragging state, whatever else happened
+    if (seconds === null) return; // nothing was being dragged
     const clipLength = player.duration || 1;
-    player.seekBy((scrubTime % clipLength) - player.currentTime);
-  }, [scrubTime, player]);
+    player.seekBy((seconds % clipLength) - player.currentTime);
+    setTimeline({ elapsed: seconds, lastClipTime: seconds % clipLength });
+    if (seconds >= total - 0.1) onEndedRef.current(); // dragged to the very end: same as finishing
+  }, [player, total]);
+
+  // Live preview while the finger moves: show the frame for that moment, at a steady pace
+  useEffect(() => {
+    if (!scrubbing) return;
+    const timer = setInterval(() => {
+      const seconds = scrubRef.current;
+      if (seconds !== null) player.seekBy((seconds % (player.duration || 1)) - player.currentTime);
+    }, PREVIEW_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [scrubbing, player]);
 
   useEventListener(player, "timeUpdate", (event) => {
     if (!active || scrubbing) return;
@@ -91,12 +118,6 @@ export function EpisodeVideo({ episode, active, onEnded, onScrubbingChange }: Pr
     setTimeline(next);
     if (next.elapsed >= total && !ended) onEnded();
   });
-
-  const finishScrub = (seconds: number) => {
-    setTimeline({ elapsed: seconds, lastClipTime: clipPosition(seconds) });
-    setScrubTime(null);
-    if (seconds >= total - 0.1) onEnded(); // dragged to the very end: same as finishing
-  };
 
   const togglePlayback = () => {
     if (ended) {
@@ -131,13 +152,13 @@ export function EpisodeVideo({ episode, active, onEnded, onScrubbingChange }: Pr
           </View>
         )}
       </Pressable>
-      {active && ready && (
+      {active && (
         <EpisodeProgress
           total={total}
           current={scrubTime ?? timeline.elapsed}
           scrubbing={scrubbing}
-          onScrub={setScrubTime}
-          onScrubEnd={finishScrub}
+          onScrub={handleScrub}
+          onScrubEnd={handleScrubEnd}
         />
       )}
     </View>

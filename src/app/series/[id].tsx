@@ -18,6 +18,7 @@ import { useGoBack } from "@/hooks/useGoBack";
 import { useLocalized } from "@/hooks/useLocalized";
 import { formatEuro } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { isFavouriteSeries, toggleFavouriteSeries } from "@/store/favouritesSlice";
 import { isSeasonUnlocked, purchaseSeason } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
@@ -49,7 +50,7 @@ function SeriesDetail({ series }: { series: Series }) {
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const bottomInset = useBottomInset();
-  const [isFavourite, setIsFavourite] = useState(false);
+  const isFavourite = useAppSelector((state) => isFavouriteSeries(state, series.id));
   const [visibleEpisodes, setVisibleEpisodes] = useState(FIRST_EPISODES);
 
   const seasonUnlocked = useAppSelector((state) => isSeasonUnlocked(state, series.id));
@@ -111,7 +112,7 @@ function SeriesDetail({ series }: { series: Series }) {
             </Pressable>
             <Pressable
               style={({ pressed }) => [styles.iconButton, pressed && pressedStyle]}
-              onPress={() => setIsFavourite((value) => !value)}
+              onPress={() => dispatch(toggleFavouriteSeries(series.id))}
               accessibilityRole="button"
               accessibilityLabel={t("series.addToFavourites")}
             >

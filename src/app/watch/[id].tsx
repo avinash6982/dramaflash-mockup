@@ -7,14 +7,14 @@ import { FlatList } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EpisodePage } from "@/components/EpisodePage";
+import { LockSheet } from "@/components/LockSheet";
 import { SwipeHint } from "@/components/SwipeHint";
 import { clampEpisodeIndex, findSeries } from "@/data/series";
 import type { Series } from "@/data/series";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useWheelPaging } from "@/hooks/useWheelPaging";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { closeLockSheet, openLockSheet, setEpisode } from "@/store/playerSlice";
-import { isEpisodeLocked } from "@/store/unlocksSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { setEpisode } from "@/store/playerSlice";
 import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 
@@ -51,17 +51,11 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
     [startIndex],
   );
 
-  const activeIsLocked = useAppSelector((state) => isEpisodeLocked(state, series.id, activeIndex));
-
-  // Keep the player slice in step with the page on screen, and open the lock sheet on a locked one
+  // Keep the player slice in step with the page on screen. The lock sheet opens when the user taps the
+  // lock card, never by itself: an automatic pop-up fights swiping through locked episodes.
   useEffect(() => {
     dispatch(setEpisode({ seriesId: series.id, index: activeIndex }));
-    if (activeIsLocked) dispatch(openLockSheet());
-    else dispatch(closeLockSheet());
-  }, [dispatch, series.id, activeIndex, activeIsLocked]);
-
-  // Leaving the player closes any open lock sheet
-  useEffect(() => () => void dispatch(closeLockSheet()), [dispatch]);
+  }, [dispatch, series.id, activeIndex]);
 
   // web: one wheel or trackpad gesture moves exactly one episode
   useWheelPaging({
@@ -112,6 +106,8 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
       )}
 
       {height > 0 && series.episodes.length > 1 && <SwipeHint hidden={swiped} />}
+
+      <LockSheet />
 
       <Pressable
         style={({ pressed }) => [styles.back, { top: insets.top + 8 }, pressed && pressedStyle]}

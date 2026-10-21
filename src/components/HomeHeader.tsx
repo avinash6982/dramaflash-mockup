@@ -1,21 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { setLanguage } from "@/i18n";
 import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
-import { fonts } from "@/theme/typography";
 
-type Props = { solid: boolean }; // solid once the page has scrolled past the hero
+type Props = {
+  solid: boolean; // solid once the page has scrolled past the hero
+  onLogoPress: () => void; // the logo takes you back to the top of Home
+};
 
 // App bar that floats over the hero: logo on the left, actions on the right
-export function HomeHeader({ solid }: Props) {
-  const { i18n } = useTranslation();
+export function HomeHeader({ solid, onLogoPress }: Props) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const isGerman = i18n.language === "de";
 
   return (
     <View
@@ -32,19 +32,16 @@ export function HomeHeader({ solid }: Props) {
           pointerEvents="none"
         />
       )}
-      <View style={styles.logo}>
+      <Pressable
+        style={({ pressed }) => [styles.logo, pressed && pressedStyle]}
+        onPress={onLogoPress}
+        accessibilityRole="button"
+        accessibilityLabel={t("home.backToTop")}
+      >
         <Ionicons name="heart-outline" size={22} color={colors.onPrimary} />
-      </View>
+      </Pressable>
 
       <View style={styles.actions}>
-        <Pressable
-          style={({ pressed }) => [styles.language, pressed && pressedStyle]}
-          onPress={() => setLanguage(isGerman ? "en" : "de")}
-          accessibilityRole="button"
-          accessibilityLabel="Language"
-        >
-          <Text style={styles.languageText}>{isGerman ? "DE" : "EN"}</Text>
-        </Pressable>
         <Ionicons name="search-outline" size={22} color={colors.textPrimary} />
         <Ionicons name="notifications-outline" size={22} color={colors.textPrimary} />
         <View style={styles.avatar}>
@@ -76,15 +73,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   actions: { flexDirection: "row", alignItems: "center", gap: 16 },
-  language: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: "rgba(0,0,0,0.4)",
-  },
-  languageText: { fontFamily: fonts.bodySemiBold, fontSize: 12, color: colors.textPrimary },
   avatar: {
     width: 32,
     height: 32,

@@ -217,7 +217,6 @@ function SeriesDetail({ series }: { series: Series }) {
           title={t("series.youMightAlsoLike")}
           series={alsoLikeSeriesIds.map(getSeries)}
           onPressSeries={openSeries}
-          showSeeAll={false}
         />
       </ScrollView>
 

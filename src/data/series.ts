@@ -88,12 +88,42 @@ const images = {
 
 // The design only has real episodes for The CEO's Secret Life (with its placeholder dragon art)
 const ceoEpisodes: Episode[] = [
-  { title: { en: "The Accidental Message", de: "Die falsch gesendete Nachricht" }, duration: "3:12", thumb: require("../../assets/images/ep-thumb-1.webp"), video: videos.ceo1 },
-  { title: { en: "Coffee and Contracts", de: "Kaffee und Verträge" }, duration: "2:55", thumb: require("../../assets/images/ep-thumb-2.webp"), video: videos.ceo2 },
-  { title: { en: "A Glimpse Behind the Mask", de: "Ein Blick hinter die Maske" }, duration: "3:30", thumb: require("../../assets/images/ep-thumb-3.webp"), video: videos.ceo3 },
-  { title: { en: "The Gala Encounter", de: "Die Begegnung auf der Gala" }, duration: "4:05", thumb: require("../../assets/images/ep-thumb-4.webp"), video: videos.ceo4 },
-  { title: { en: "Misunderstandings", de: "Missverständnisse" }, duration: "2:48", thumb: require("../../assets/images/ep-thumb-5-locked.webp"), video: videos.ceo1 },
-  { title: { en: "Midnight Confessions", de: "Geständnisse um Mitternacht" }, duration: "3:15", thumb: require("../../assets/images/ep-thumb-6-locked.webp"), video: videos.ceo2 },
+  {
+    title: { en: "The Accidental Message", de: "Die falsch gesendete Nachricht" },
+    duration: "3:12",
+    thumb: require("../../assets/images/ep-thumb-1.webp"),
+    video: videos.ceo1,
+  },
+  {
+    title: { en: "Coffee and Contracts", de: "Kaffee und Verträge" },
+    duration: "2:55",
+    thumb: require("../../assets/images/ep-thumb-2.webp"),
+    video: videos.ceo2,
+  },
+  {
+    title: { en: "A Glimpse Behind the Mask", de: "Ein Blick hinter die Maske" },
+    duration: "3:30",
+    thumb: require("../../assets/images/ep-thumb-3.webp"),
+    video: videos.ceo3,
+  },
+  {
+    title: { en: "The Gala Encounter", de: "Die Begegnung auf der Gala" },
+    duration: "4:05",
+    thumb: require("../../assets/images/ep-thumb-4.webp"),
+    video: videos.ceo4,
+  },
+  {
+    title: { en: "Misunderstandings", de: "Missverständnisse" },
+    duration: "2:48",
+    thumb: require("../../assets/images/ep-thumb-5-locked.webp"),
+    video: videos.ceo1,
+  },
+  {
+    title: { en: "Midnight Confessions", de: "Geständnisse um Mitternacht" },
+    duration: "3:15",
+    thumb: require("../../assets/images/ep-thumb-6-locked.webp"),
+    video: videos.ceo2,
+  },
 ];
 
 // Every episode without a name from the design is a plain "Episode N" row with the series' own
@@ -130,20 +160,50 @@ const sharedHighlights: LocalizedText[] = [
 ];
 
 const ceoCast: CastMember[] = [
-  { name: "Elena Brooks", character: "Mia", role: { en: "Artist", de: "Künstlerin" }, photo: require("../../assets/images/cast-elena.webp") },
-  { name: "Julian Vance", character: "Alexander", role: { en: "CEO", de: "CEO" }, photo: require("../../assets/images/cast-julian-vance.webp") },
-  { name: "Sarah Lin", character: "Chloe", role: { en: "Best Friend", de: "Beste Freundin" }, photo: require("../../assets/images/cast-sarah-lin.webp") },
-  { name: "Marcus Hale", character: "Daniel", role: { en: "Rival CEO", de: "Rivale" }, photo: require("../../assets/images/cast-marcus.webp") },
+  {
+    name: "Elena Brooks",
+    character: "Mia",
+    role: { en: "Artist", de: "Künstlerin" },
+    photo: require("../../assets/images/cast-elena.webp"),
+  },
+  {
+    name: "Julian Vance",
+    character: "Alexander",
+    role: { en: "CEO", de: "CEO" },
+    photo: require("../../assets/images/cast-julian-vance.webp"),
+  },
+  {
+    name: "Sarah Lin",
+    character: "Chloe",
+    role: { en: "Best Friend", de: "Beste Freundin" },
+    photo: require("../../assets/images/cast-sarah-lin.webp"),
+  },
+  {
+    name: "Marcus Hale",
+    character: "Daniel",
+    role: { en: "Rival CEO", de: "Rivale" },
+    photo: require("../../assets/images/cast-marcus.webp"),
+  },
 ];
 
-const base = { year: 2024, ratingCount: "12k", freeEpisodes: 3, highlights: sharedHighlights, cast: [] };
+const base = {
+  year: 2024,
+  ratingCount: "12k",
+  freeEpisodes: 3,
+  highlights: sharedHighlights,
+  cast: [],
+};
 
 export const series: Series[] = [
   {
     ...base,
     id: "verbotene-liebe",
+    year: 2025,
     title: { en: "Forbidden Love", de: "Verbotene Liebe" },
-    synopsis: { en: "A CEO's dangerous secret contract.", de: "Der gefährliche Geheimvertrag eines CEOs." },
+    synopsis: {
+      en: "A CEO's dangerous secret contract.",
+      de: "Der gefährliche Geheimvertrag eines CEOs.",
+    },
     genres: ["romance", "drama", "billionaire"],
     rating: 4.8,
     totalEpisodes: 72,
@@ -173,8 +233,12 @@ export const series: Series[] = [
   {
     ...base,
     id: "der-ceo-und-ich",
+    year: 2025,
     title: { en: "The CEO and I", de: "Der CEO und ich" },
-    synopsis: { en: "A forbidden empire, a dangerous love.", de: "Ein verbotenes Imperium, eine gefährliche Liebe." },
+    synopsis: {
+      en: "A forbidden empire, a dangerous love.",
+      de: "Ein verbotenes Imperium, eine gefährliche Liebe.",
+    },
     genres: ["romance", "billionaire"],
     rating: 4.6,
     totalEpisodes: 50,
@@ -186,6 +250,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "mein-geheimes-leben",
+    year: 2023,
     title: { en: "My Secret Life", de: "Mein geheimes Leben" },
     synopsis: { en: "A thriller of masks and lies.", de: "Ein Thriller über Masken und Lügen." },
     genres: ["thriller", "drama"],
@@ -200,7 +265,10 @@ export const series: Series[] = [
     ...base,
     id: "liebe-auf-umwegen",
     title: { en: "Love on Detours", de: "Liebe auf Umwegen" },
-    synopsis: { en: "Two paths, one fate, and time running out.", de: "Zwei Wege, ein Schicksal, und die Zeit läuft ab." },
+    synopsis: {
+      en: "Two paths, one fate, and time running out.",
+      de: "Zwei Wege, ein Schicksal, und die Zeit läuft ab.",
+    },
     genres: ["romance", "fantasy"],
     rating: 4.5,
     totalEpisodes: 65,
@@ -212,6 +280,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "blutige-rosen",
+    year: 2023,
     title: { en: "Bloody Roses", de: "Blutige Rosen" },
     synopsis: { en: "A love that leaves its mark.", de: "Eine Liebe, die Spuren hinterlässt." },
     genres: ["forbiddenLove", "drama"],
@@ -225,6 +294,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "schattenkuss",
+    year: 2025,
     title: { en: "Shadow Kiss", de: "Schattenkuss" },
     synopsis: {
       en: "A forbidden love story that defies the darkness.",
@@ -242,7 +312,10 @@ export const series: Series[] = [
     ...base,
     id: "dunkle-begierde",
     title: { en: "Dark Desire", de: "Dunkles Verlangen" },
-    synopsis: { en: "A thriller of consuming passion.", de: "Ein Thriller über verzehrende Leidenschaft." },
+    synopsis: {
+      en: "A thriller of consuming passion.",
+      de: "Ein Thriller über verzehrende Leidenschaft.",
+    },
     genres: ["forbiddenLove", "thriller"],
     rating: 4.2,
     totalEpisodes: 60,
@@ -254,6 +327,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "racheengel",
+    year: 2025,
     title: { en: "Avenging Angel", de: "Racheengel" },
     synopsis: {
       en: "She fell to earth to settle a score.",
@@ -270,6 +344,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "schicksalsband",
+    year: 2023,
     title: { en: "Band of Fate", de: "Schicksalsband" },
     synopsis: {
       en: "Your destinies are woven, then broken.",
@@ -299,6 +374,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "forbidden-vows",
+    year: 2025,
     title: { en: "Forbidden Vows", de: "Der verbotene Schwur" },
     synopsis: {
       en: "A vow that should never have been made.",
@@ -331,6 +407,7 @@ export const series: Series[] = [
   {
     ...base,
     id: "the-heirs-dilemma",
+    year: 2023,
     title: { en: "The Heir's Dilemma", de: "Das Dilemma des Erben" },
     synopsis: {
       en: "A hidden fortune and a house full of secrets.",
@@ -351,7 +428,10 @@ export const homeSections = [
   {
     key: "romance",
     rails: [
-      { key: "trendingRomance", seriesIds: ["der-ceo-und-ich", "mein-geheimes-leben", "liebe-auf-umwegen"] },
+      {
+        key: "trendingRomance",
+        seriesIds: ["der-ceo-und-ich", "mein-geheimes-leben", "liebe-auf-umwegen"],
+      },
       { key: "forbiddenLove", seriesIds: ["blutige-rosen", "schattenkuss", "dunkle-begierde"] },
     ],
   },
@@ -360,6 +440,12 @@ export const homeSections = [
     rails: [{ key: "mostWatched", seriesIds: ["racheengel", "schicksalsband", "zweite-chance"] }],
   },
 ] as const;
+
+// Every rail of every section as plain objects (the sections above keep their literal keys so Home
+// can type its translation keys)
+export const homeRails: { key: string; seriesIds: readonly string[] }[] = homeSections.flatMap(
+  (section) => [...section.rails] as { key: string; seriesIds: readonly string[] }[],
+);
 
 // Genre chips under the hero ("All" is added by the screen)
 export const homeGenres: GenreId[] = ["romance", "drama", "action", "mystery"];

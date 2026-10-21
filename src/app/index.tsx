@@ -11,6 +11,8 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { setLanguage } from "@/i18n";
+import { colors } from "@/theme/colors";
+import { fonts } from "@/theme/typography";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -53,7 +55,7 @@ export default function Index() {
         playsInline
       />
       <Text style={styles.status}>{isPlaying ? "Playing" : "Paused"}</Text>
-      <Text style={styles.status}>{t("home.watchNow")}</Text>
+      <Text style={styles.title}>{t("home.watchNow")}</Text>
       <Pressable
         style={styles.button}
         onPress={() => setLanguage(i18n.language === "en" ? "de" : "en")}
@@ -85,14 +87,15 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
   video: { width: 270, height: 480 },
-  status: { fontSize: 16 },
+  status: { fontSize: 16, color: colors.textPrimary, fontFamily: fonts.body },
+  title: { fontSize: 28, color: colors.textPrimary, fontFamily: fonts.display },
   button: {
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 24,
-    backgroundColor: "#64EDF7",
+    backgroundColor: colors.primary,
   },
-  buttonText: { color: "#044449", fontWeight: "600" },
+  buttonText: { color: colors.onPrimary, fontFamily: fonts.bodySemiBold },
   sheet: { alignItems: "center", gap: 16, paddingTop: 16 },
   sheetText: { fontSize: 18 },
 });

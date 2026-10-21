@@ -8,17 +8,13 @@ import { SEASON_PRICE_EUR } from "../coinPacks";
 import {
   alsoLikeSeriesIds,
   clampEpisodeIndex,
+  durationToSeconds,
   findSeries,
   heroSeriesId,
   homeGenres,
   homeSections,
   series,
 } from "../series";
-
-const toSeconds = (duration: string) => {
-  const [minutes, seconds] = duration.split(":").map(Number);
-  return minutes * 60 + seconds;
-};
 
 describe("series data", () => {
   // Home and the detail screen look these ids up and would crash on a typo
@@ -66,7 +62,7 @@ describe("series data", () => {
   // The poster says "2m/ep", so the episode list must not show 4-minute episodes
   it("shows episode durations that match minutes per episode", () => {
     for (const s of series) {
-      const average = s.episodes.reduce((sum, e) => sum + toSeconds(e.duration), 0) / s.episodes.length;
+      const average = s.episodes.reduce((sum, e) => sum + durationToSeconds(e.duration), 0) / s.episodes.length;
       expect(Math.round(average / 60)).toBe(s.minutesPerEpisode);
     }
   });
@@ -75,8 +71,8 @@ describe("series data", () => {
     for (const s of series) for (const e of s.episodes) expect(e.video).toBeTruthy();
   });
 
-  it("never offers more listed episodes than the series has", () => {
-    for (const s of series) expect(s.episodes.length).toBeLessThanOrEqual(s.totalEpisodes);
+  it("lists every episode of every series", () => {
+    for (const s of series) expect(s.episodes).toHaveLength(s.totalEpisodes);
   });
 });
 
@@ -104,4 +100,12 @@ describe("clampEpisodeIndex", () => {
     expect(clampEpisodeIndex("1.5", 6)).toBe(0);
   });
   it("caps an index past the last episode", () => expect(clampEpisodeIndex("99", 6)).toBe(5));
+});
+
+describe("durationToSeconds", () => {
+  it("reads minutes and seconds", () => {
+    expect(durationToSeconds("3:12")).toBe(192);
+    expect(durationToSeconds("0:48")).toBe(48);
+    expect(durationToSeconds("10:05")).toBe(605);
+  });
 });

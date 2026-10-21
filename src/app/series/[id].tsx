@@ -18,6 +18,7 @@ import { useGoBack } from "@/hooks/useGoBack";
 import { useLocalized } from "@/hooks/useLocalized";
 import { formatEuro } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { isFavouriteSeries, toggleFavouriteSeries } from "@/store/favouritesSlice";
 import { isSeasonUnlocked, purchaseSeason } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
@@ -37,6 +38,10 @@ export default function SeriesScreen() {
   return <SeriesDetail series={series} />;
 }
 
+// The episode list starts short and grows by one page each time "Show more episodes" is tapped
+const FIRST_EPISODES = 6;
+const EPISODES_PER_PAGE = 10;
+
 function SeriesDetail({ series }: { series: Series }) {
   const { t, i18n } = useTranslation();
   const localized = useLocalized();
@@ -45,7 +50,8 @@ function SeriesDetail({ series }: { series: Series }) {
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const bottomInset = useBottomInset();
-  const [isFavourite, setIsFavourite] = useState(false);
+  const isFavourite = useAppSelector((state) => isFavouriteSeries(state, series.id));
+  const [visibleEpisodes, setVisibleEpisodes] = useState(FIRST_EPISODES);
 
   const seasonUnlocked = useAppSelector((state) => isSeasonUnlocked(state, series.id));
   const purchasing = useAppSelector((state) => state.unlocks.purchasingSeasonId === series.id);
@@ -106,7 +112,7 @@ function SeriesDetail({ series }: { series: Series }) {
             </Pressable>
             <Pressable
               style={({ pressed }) => [styles.iconButton, pressed && pressedStyle]}
-              onPress={() => setIsFavourite((value) => !value)}
+              onPress={() => dispatch(toggleFavouriteSeries(series.id))}
               accessibilityRole="button"
               accessibilityLabel={t("series.addToFavourites")}
             >
@@ -183,7 +189,7 @@ function SeriesDetail({ series }: { series: Series }) {
           )}
 
           <View style={styles.episodes}>
-            {series.episodes.map((episode, index) => (
+            {series.episodes.slice(0, visibleEpisodes).map((episode, index) => (
               <EpisodeRow
                 key={index}
                 seriesId={series.id}
@@ -193,6 +199,17 @@ function SeriesDetail({ series }: { series: Series }) {
               />
             ))}
           </View>
+
+          {visibleEpisodes < series.episodes.length && (
+            <Pressable
+              style={({ pressed }) => [styles.showMore, pressed && pressedStyle]}
+              onPress={() => setVisibleEpisodes((count) => count + EPISODES_PER_PAGE)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.showMoreText}>{t("series.showMoreEpisodes")}</Text>
+              <Ionicons name="chevron-down" size={16} color={colors.textMuted} />
+            </Pressable>
+          )}
         </View>
 
         <Rail
@@ -315,5 +332,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceRaised,
   },
   countText: { fontFamily: fonts.bodySemiBold, fontSize: 12, color: colors.primary },
-  episodes: { gap: 18, paddingVertical: 8, marginBottom: 12 },
+  episodes: { gap: 18, paddingVertical: 8 },
+  showMore: {
+    flexDirection: "row",
+    alignSelf: "center",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  showMoreText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textMuted },
 });

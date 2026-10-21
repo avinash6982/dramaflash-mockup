@@ -6,9 +6,12 @@ import { colors } from "@/theme/colors";
 // column, so buttons, the progress bar and sheets line up as they do on a phone.
 export const MAX_APP_WIDTH = 430;
 
+// The edge line only appears on really wide screens, never on phone-sized windows
+const EDGE_LINE_MIN_WIDTH = 600;
+
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
-  const isWide = width > MAX_APP_WIDTH;
+  const isWide = width >= EDGE_LINE_MIN_WIDTH;
 
   return (
     <View style={styles.outside}>

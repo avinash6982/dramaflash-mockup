@@ -1,11 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import type { LayoutChangeEvent, ViewToken } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EpisodePage } from "@/components/EpisodePage";
+import { SwipeHint } from "@/components/SwipeHint";
 import { clampEpisodeIndex, findSeries } from "@/data/series";
 import type { Series } from "@/data/series";
 import { useGoBack } from "@/hooks/useGoBack";
@@ -37,14 +39,16 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
   const [height, setHeight] = useState(0);
   const listRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(startIndex);
-  const [scrubbing, setScrubbing] = useState(false); // dragging the progress bar must not scroll the feed
+  const [swiped, setSwiped] = useState(false); // the "swipe up" cue goes away after the first swipe
 
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       const first = viewableItems[0];
-      if (first?.index != null) setActiveIndex(first.index);
+      if (first?.index == null) return;
+      setActiveIndex(first.index);
+      if (first.index !== startIndex) setSwiped(true);
     },
-    [],
+    [startIndex],
   );
 
   const activeIsLocked = useAppSelector((state) => isEpisodeLocked(state, series.id, activeIndex));
@@ -90,11 +94,9 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
               height={height}
               active={index === activeIndex}
               onEnded={() => goToNext(index)}
-              onScrubbingChange={setScrubbing}
             />
           )}
           pagingEnabled
-          scrollEnabled={!scrubbing}
           snapToInterval={height}
           decelerationRate="fast"
           disableIntervalMomentum // one swipe moves exactly one episode, however hard you flick
@@ -108,6 +110,8 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
           maxToRenderPerBatch={1}
         />
       )}
+
+      {height > 0 && series.episodes.length > 1 && <SwipeHint hidden={swiped} />}
 
       <Pressable
         style={({ pressed }) => [styles.back, { top: insets.top + 8 }, pressed && pressedStyle]}

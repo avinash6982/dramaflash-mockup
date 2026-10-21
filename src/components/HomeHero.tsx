@@ -1,12 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Series } from "@/data/series";
 import { useLocalized } from "@/hooks/useLocalized";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { isFavouriteSeries, toggleFavouriteSeries } from "@/store/favouritesSlice";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
@@ -17,7 +18,8 @@ type Props = { series: Series; onWatch: () => void };
 export function HomeHero({ series, onWatch }: Props) {
   const { t } = useTranslation();
   const localized = useLocalized();
-  const [inMyList, setInMyList] = useState(false);
+  const dispatch = useAppDispatch();
+  const inMyList = useAppSelector((state) => isFavouriteSeries(state, series.id));
 
   return (
     <View style={styles.container}>
@@ -38,7 +40,9 @@ export function HomeHero({ series, onWatch }: Props) {
           <View style={styles.spotlight}>
             <Text style={styles.spotlightText}>{t("home.spotlight")}</Text>
           </View>
-          <Text style={styles.genres}>{series.genres.map((genre) => t(`genres.${genre}`)).join("  •  ")}</Text>
+          <Text style={styles.genres}>
+            {series.genres.map((genre) => t(`genres.${genre}`)).join("  •  ")}
+          </Text>
         </View>
 
         <Text style={styles.title}>{localized(series.title)}</Text>
@@ -48,7 +52,9 @@ export function HomeHero({ series, onWatch }: Props) {
           <Ionicons name="star-outline" size={16} color={colors.textPrimary} />
           <Text style={styles.ratingText}>{series.rating}</Text>
           <Text style={styles.dot}>•</Text>
-          <Text style={styles.ratingText}>{t("home.episodes", { count: series.totalEpisodes })}</Text>
+          <Text style={styles.ratingText}>
+            {t("home.episodes", { count: series.totalEpisodes })}
+          </Text>
         </View>
 
         <View style={styles.actions}>
@@ -62,8 +68,9 @@ export function HomeHero({ series, onWatch }: Props) {
           </Pressable>
           <Pressable
             style={({ pressed }) => [styles.addButton, pressed && pressedStyle]}
-            onPress={() => setInMyList((value) => !value)}
+            onPress={() => dispatch(toggleFavouriteSeries(series.id))}
             accessibilityRole="button"
+            accessibilityLabel={t("series.addToFavourites")}
           >
             <Ionicons name={inMyList ? "checkmark" : "add"} size={22} color={colors.textPrimary} />
           </Pressable>

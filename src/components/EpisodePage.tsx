@@ -16,11 +16,10 @@ type Props = {
   height: number; // one page is exactly one screen tall
   active: boolean;
   onEnded: () => void;
-  onScrubbingChange: (scrubbing: boolean) => void;
 };
 
 // One full-screen page of the vertical feed: the video, or the lock card, plus the overlay
-export function EpisodePage({ series, index, height, active, onEnded, onScrubbingChange }: Props) {
+export function EpisodePage({ series, index, height, active, onEnded }: Props) {
   const dispatch = useAppDispatch();
   const locked = useAppSelector((state) => isEpisodeLocked(state, series.id, index));
 
@@ -29,12 +28,7 @@ export function EpisodePage({ series, index, height, active, onEnded, onScrubbin
       {locked ? (
         <LockedEpisode series={series} index={index} onUnlock={() => dispatch(openLockSheet())} />
       ) : (
-        <EpisodeVideo
-          episode={series.episodes[index]}
-          active={active}
-          onEnded={onEnded}
-          onScrubbingChange={onScrubbingChange}
-        />
+        <EpisodeVideo episode={series.episodes[index]} active={active} onEnded={onEnded} />
       )}
       <EpisodeOverlay series={series} index={index} />
     </View>

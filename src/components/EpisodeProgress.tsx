@@ -1,6 +1,4 @@
-import { useEventListener } from "expo";
-import type { VideoPlayer } from "expo-video";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
@@ -9,69 +7,69 @@ import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/typography";
 
 type Props = {
-  player: VideoPlayer;
-  // Called with true while the finger is on the bar, so the feed can pause its vertical scrolling
-  onScrubbingChange: (scrubbing: boolean) => void;
+  total: number; // episode length in seconds
+  current: number; // seconds shown by the bar
+  scrubbing: boolean;
+  onScrub: (seconds: number) => void; // finger down or moving
+  onScrubEnd: () => void; // finger lifted, or the touch was taken away
 };
 
 const TOUCH_HEIGHT = 28; // easy to hit, the visible line is much thinner
 const THUMB_SIZE = 14;
+// Gap between the bottom inset and the bar, so it does not sit on the screen edge
+export const PROGRESS_BAR_LIFT = 8;
+export const PROGRESS_BAR_SPACE = TOUCH_HEIGHT + PROGRESS_BAR_LIFT;
 
 const formatTime = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 
-// Progress line at the bottom of the video. Tap or drag to seek.
-export function EpisodeProgress({ player, onScrubbingChange }: Props) {
+// Progress line near the bottom of the video. Tap or drag to seek. It only reports positions;
+// the video decides what to do with them.
+//
+// The bar sits inside a vertical list. A gesture that starts on the bar must win over the list's
+// scroll, or on Android a little upward drift of the finger turns the drag into a swipe to another
+// episode. That works because the list is the gesture-handler FlatList (see the watch screen), so the
+// two negotiate: the bar's Pan activates on the first move, which cancels the scroll.
+// The gesture is built once (useMemo) and the callbacks it gets never change between renders: a
+// gesture rebuilt in the middle of a drag can be dropped by the phone.
+export function EpisodeProgress({ total, current, scrubbing, onScrub, onScrubEnd }: Props) {
   const bottomInset = useBottomInset();
   const [width, setWidth] = useState(1);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [scrubFraction, setScrubFraction] = useState<number | null>(null); // null: not scrubbing
 
-  useEventListener(player, "timeUpdate", (event) => setCurrentTime(event.currentTime));
+  const scrub = useMemo(() => {
+    const secondsAt = (x: number) => Math.min(Math.max(x / width, 0), 1) * total;
+    return Gesture.Pan()
+      .runOnJS(true)
+      .minDistance(0) // starts on the first move, before the list's scroll can
+      .shouldCancelWhenOutside(false) // keep dragging when the finger leaves the bar sideways or up
+      .onBegin((event) => onScrub(secondsAt(event.x)))
+      .onUpdate((event) => onScrub(secondsAt(event.x)))
+      .onFinalize(() => onScrubEnd());
+  }, [width, total, onScrub, onScrubEnd]);
 
-  const fractionAt = (x: number) => Math.min(Math.max(x / width, 0), 1);
-
-  // The thumb follows the finger; the video seeks once, when the finger lifts.
-  // Playback is left as it was (playing stays playing, paused stays paused).
-  const scrub = Gesture.Pan()
-    .runOnJS(true)
-    .minDistance(0)
-    .onBegin((event) => {
-      onScrubbingChange(true);
-      setScrubFraction(fractionAt(event.x));
-    })
-    .onUpdate((event) => setScrubFraction(fractionAt(event.x)))
-    .onFinalize((event) => {
-      if (player.duration > 0) {
-        player.seekBy(fractionAt(event.x) * player.duration - player.currentTime);
-      }
-      setScrubFraction(null);
-      onScrubbingChange(false);
-    });
-
-  const duration = player.duration;
-  if (!(duration > 0)) return null; // not loaded yet
-
-  const scrubbing = scrubFraction !== null;
-  const fraction = scrubFraction ?? Math.min(currentTime / duration, 1);
+  const fraction = Math.min(current / total, 1);
 
   return (
     <GestureDetector gesture={scrub}>
       <View
-        style={[styles.touchArea, { bottom: Math.max(bottomInset - 12, 4) }]}
+        style={[styles.touchArea, { bottom: bottomInset + PROGRESS_BAR_LIFT }]}
         onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
         accessibilityRole="adjustable"
-        accessibilityValue={{ min: 0, max: Math.round(duration), now: Math.round(fraction * duration) }}
+        aria-valuemin={0}
+        aria-valuemax={Math.round(total)}
+        aria-valuenow={Math.round(current)}
       >
         {scrubbing && (
-          <Text style={styles.time}>
-            {formatTime(fraction * duration)} / {formatTime(duration)}
+          <Text style={styles.time} pointerEvents="none">
+            {formatTime(current)} / {formatTime(total)}
           </Text>
         )}
-        <View style={[styles.track, scrubbing && styles.trackActive]}>
+        <View style={[styles.track, scrubbing && styles.trackActive]} pointerEvents="none">
           <View style={[styles.fill, { width: `${fraction * 100}%` }]} />
         </View>
-        {scrubbing && <View style={[styles.thumb, { left: `${fraction * 100}%` }]} />}
+        {scrubbing && (
+          <View style={[styles.thumb, { left: `${fraction * 100}%` }]} pointerEvents="none" />
+        )}
       </View>
     </GestureDetector>
   );
@@ -85,7 +83,12 @@ const styles = StyleSheet.create({
     height: TOUCH_HEIGHT,
     justifyContent: "center",
   },
-  track: { height: 3, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.3)", overflow: "hidden" },
+  track: {
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    overflow: "hidden",
+  },
   trackActive: { height: 6, borderRadius: 3 },
   fill: { height: "100%", backgroundColor: colors.primary },
   thumb: {

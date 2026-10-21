@@ -15,6 +15,7 @@ export const de: typeof en = {
     comingSoon: "Demnächst",
   },
   series: {
+    showMoreEpisodes: "Weitere Folgen anzeigen",
     playEpisode: "Folge {{number}} ansehen",
     synopsis: "Handlung",
     whyYoullLoveIt: "Warum du sie lieben wirst",
@@ -28,6 +29,10 @@ export const de: typeof en = {
     share: "Teilen",
     addToFavourites: "Zu Favoriten hinzufügen",
   },
+  favourites: {
+    emptyTitle: "Noch nichts gespeichert",
+    emptyHint: "Tippe bei einer Serie auf das Herz, um sie hier zu speichern.",
+  },
   genres: {
     romance: "Romantik",
     drama: "Drama",
@@ -40,6 +45,7 @@ export const de: typeof en = {
     mystery: "Mystery",
   },
   player: {
+    swipeUp: "Nach oben wischen",
     episodeShort: "Folge {{number}}",
     unlockEpisode: "Folge {{number}} freischalten",
     like: "Gefällt mir",

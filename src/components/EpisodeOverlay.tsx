@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, Share, StyleSheet, Text, View } from "react-native";
 
@@ -8,9 +7,14 @@ import type { Series } from "@/data/series";
 import { useBottomInset } from "@/hooks/useBottomInset";
 import { useLocalized } from "@/hooks/useLocalized";
 import { formatCount } from "@/i18n/format";
+import { isEpisodeLiked, toggleEpisodeLike } from "@/store/favouritesSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getEpisodeId } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
+
+import { PROGRESS_BAR_SPACE } from "./EpisodeProgress";
 
 const BASE_LIKES = 12000;
 
@@ -21,7 +25,8 @@ export function EpisodeOverlay({ series, index }: Props) {
   const { t, i18n } = useTranslation();
   const localized = useLocalized();
   const bottomInset = useBottomInset();
-  const [liked, setLiked] = useState(false);
+  const dispatch = useAppDispatch();
+  const liked = useAppSelector((state) => isEpisodeLiked(state, series.id, index));
 
   const title = localized(series.title);
   const share = () => Share.share({ message: title }).catch(() => {});
@@ -34,7 +39,10 @@ export function EpisodeOverlay({ series, index }: Props) {
         pointerEvents="none"
       />
 
-      <View style={[styles.info, { paddingBottom: bottomInset + 40 }]} pointerEvents="none">
+      <View
+        style={[styles.info, { paddingBottom: bottomInset + PROGRESS_BAR_SPACE + 12 }]}
+        pointerEvents="none"
+      >
         <Text style={styles.title}>{title}</Text>
         <View style={styles.badgeRow}>
           <View style={styles.badge}>
@@ -44,10 +52,10 @@ export function EpisodeOverlay({ series, index }: Props) {
         </View>
       </View>
 
-      <View style={[styles.rail, { bottom: bottomInset + 56 }]}>
+      <View style={[styles.rail, { bottom: bottomInset + PROGRESS_BAR_SPACE + 28 }]}>
         <Pressable
           style={({ pressed }) => [styles.railButton, pressed && pressedStyle]}
-          onPress={() => setLiked((value) => !value)}
+          onPress={() => dispatch(toggleEpisodeLike(getEpisodeId(series.id, index)))}
           accessibilityRole="button"
           accessibilityLabel={t("player.like")}
         >

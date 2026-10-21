@@ -13,6 +13,7 @@ export const en = {
     comingSoon: "Coming soon",
   },
   series: {
+    showMoreEpisodes: "Show more episodes",
     playEpisode: "Play Ep {{number}}",
     synopsis: "Synopsis",
     whyYoullLoveIt: "Why you'll love it",
@@ -26,6 +27,10 @@ export const en = {
     share: "Share",
     addToFavourites: "Add to favourites",
   },
+  favourites: {
+    emptyTitle: "Nothing saved yet",
+    emptyHint: "Tap the heart on a series to save it here.",
+  },
   genres: {
     romance: "Romance",
     drama: "Drama",
@@ -38,6 +43,7 @@ export const en = {
     mystery: "Mystery",
   },
   player: {
+    swipeUp: "Swipe up",
     episodeShort: "Ep {{number}}",
     unlockEpisode: "Unlock Episode {{number}}",
     like: "Like",

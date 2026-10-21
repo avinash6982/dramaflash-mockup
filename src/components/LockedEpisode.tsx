@@ -10,13 +10,14 @@ import { fonts } from "@/theme/typography";
 
 type Props = { series: Series; index: number; onUnlock: () => void };
 
-// What a locked episode shows instead of the video: the artwork, blurred, with an unlock card
+// What a locked episode shows instead of the video: the artwork, dimmed, with an unlock card.
+// (A blur was tried, but it did not render on a phone and looked like a plain dark overlay.)
 export function LockedEpisode({ series, index, onUnlock }: Props) {
   const { t } = useTranslation();
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      <Image source={series.poster} style={StyleSheet.absoluteFill} contentFit="cover" blurRadius={40} />
+      <Image source={series.poster} style={StyleSheet.absoluteFill} contentFit="cover" />
       <View style={styles.dim} />
       <View style={styles.center}>
         <Pressable
@@ -38,7 +39,7 @@ export function LockedEpisode({ series, index, onUnlock }: Props) {
 }
 
 const styles = StyleSheet.create({
-  dim: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.3)" },
+  dim: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.5)" },
   center: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center" },
   card: {
     alignItems: "center",

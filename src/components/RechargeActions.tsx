@@ -15,9 +15,10 @@ type Props = {
   onUnlocked: () => void; // the pack was bought and the choice unlocked
 };
 
-// Fixed at the bottom of the recharge step: "Secure checkout", the Buy button and the terms.
-// Buying credits the pack and unlocks what was chosen in the same step.
-export function RechargeFooter({ chosenPackId, onUnlocked }: Props) {
+// The end of the recharge step: "Secure checkout", the Buy button and the terms. Part of the
+// content like in every sheet, so it moves with the sheet. Buying credits the pack and unlocks what
+// was chosen in the same step.
+export function RechargeActions({ chosenPackId, onUnlocked }: Props) {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { pack } = useRechargeSelection(chosenPackId);
@@ -61,7 +62,13 @@ export function RechargeFooter({ chosenPackId, onUnlocked }: Props) {
 }
 
 const styles = StyleSheet.create({
-  secure: { flexDirection: "row", alignSelf: "center", alignItems: "center", gap: 6, marginTop: 4 },
+  secure: {
+    flexDirection: "row",
+    alignSelf: "center",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 16,
+  },
   secureText: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted },
   buy: {
     height: 58,

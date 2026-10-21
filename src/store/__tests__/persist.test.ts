@@ -56,6 +56,12 @@ describe("saving and restoring", () => {
 });
 
 describe("reading what was saved", () => {
+  it("accepts a save from before rewards existed", async () => {
+    const saved = pickSavedState((await usedStore()).getState());
+    const { rewards: _rewards, ...older } = saved;
+    expect(parseSavedState(JSON.stringify(older), NOW)?.rewards.claimedEpisodeIds).toEqual([]);
+  });
+
   it("starts fresh for nothing, damaged text or a wrong shape", () => {
     expect(parseSavedState(null, NOW)).toBeNull();
     expect(parseSavedState("{not json", NOW)).toBeNull();

@@ -7,14 +7,14 @@ import { findSeries } from "@/data/series";
 import { useLocalized } from "@/hooks/useLocalized";
 import { useRechargeSelection } from "@/hooks/useRechargeSelection";
 import { formatNumber } from "@/i18n/format";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { purchasePremium } from "@/store/unlocksSlice";
+import { useAppSelector } from "@/store/hooks";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 import { CoinPackGrid } from "./CoinPackGrid";
 import { MembershipCard } from "./MembershipCard";
+import { RechargeActions } from "./RechargeActions";
 
 const SIDE_PADDING = 20;
 
@@ -22,27 +22,25 @@ type Props = {
   chosenPackId: string | null; // null: the recommended pack
   onChoosePack: (packId: string) => void;
   onBack: () => void; // back to the choice step
-  onUnlocked: () => void; // the membership was bought, so everything is unlocked
+  onChooseMembership: () => void; // the membership card was tapped: the sheet asks to confirm it
+  onUnlocked: () => void; // a pack was bought and the choice unlocked: the sheet closes
 };
 
 // Step 2 of the unlock sheet, shown when "Unlock Now" finds too few coins: pick a pack (the Popular
-// one is preselected when it is enough) or take the membership instead. The Buy button for the pack
-// is the sheet's footer (RechargeFooter), so it stays in view while this scrolls.
-export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }: Props) {
+// one is preselected when it is enough) or take the membership instead, then Buy at the end.
+export function RechargeStep({
+  chosenPackId,
+  onChoosePack,
+  onChooseMembership,
+  onBack,
+  onUnlocked,
+}: Props) {
   const { t, i18n } = useTranslation();
   const localized = useLocalized();
-  const dispatch = useAppDispatch();
   const { seriesId, episodeIndex, unlockChoice } = useAppSelector((state) => state.player);
-  const purchasingPremium = useAppSelector((state) => state.unlocks.premiumBusy);
 
   const series = findSeries(seriesId ?? undefined);
   const { cost, coins, missing, pack } = useRechargeSelection(chosenPackId);
-
-  // Mocked EUR 9.99 purchase that unlocks every episode; no coins involved
-  const getPremium = async () => {
-    await dispatch(purchasePremium()).unwrap();
-    onUnlocked();
-  };
 
   const title =
     unlockChoice === "season" ? t("lockSheet.unlockSeason") : t("lockSheet.unlockEpisode");
@@ -63,43 +61,29 @@ export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }:
         <Text style={styles.headerTitle}>{title}</Text>
       </View>
 
-      <View style={styles.episodeCard}>
+      <View style={styles.summary}>
         <Image
           source={series.poster}
           style={styles.thumb}
           contentFit="cover"
           transition={IMAGE_FADE_MS}
         />
-        <View style={styles.episodeText}>
+        <View style={styles.summaryText}>
           <Text style={styles.seriesTitle} numberOfLines={1}>
-            {localized(series.title)}
+            {localized(series.title)} {"\u2022"}{" "}
+            {t("recharge.episodeShort", { number: episodeIndex + 1 })}
           </Text>
-          <Text style={styles.episodeStatus}>
-            {t("recharge.episodeLocked", { number: episodeIndex + 1 })}
+          <Text style={styles.costText}>
+            {t("recharge.unlockFor", { amount: formatNumber(cost, i18n.language) })}
           </Text>
-          <View style={styles.costChip}>
-            <Ionicons name="lock-closed-outline" size={13} color={colors.primary} />
-            <Text style={styles.costText}>
-              {t("recharge.unlockFor", { amount: formatNumber(cost, i18n.language) })}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.balance}>
-        <Text style={styles.balanceLabel}>{t("recharge.yourBalance")}</Text>
-        <View style={styles.balanceValue}>
-          <Ionicons name="flash-outline" size={18} color={colors.primary} />
-          <Text style={styles.balanceText}>
+          <Text style={styles.balanceLine}>
+            {t("recharge.yourBalance")}:{" "}
             {t("lockSheet.coins", { amount: formatNumber(coins, i18n.language) })}
+            {missing > 0 &&
+              ` \u2022 ${t("recharge.missing", { amount: formatNumber(missing, i18n.language) })}`}
           </Text>
         </View>
       </View>
-      {missing > 0 && (
-        <Text style={styles.missing}>
-          {t("recharge.missing", { amount: formatNumber(missing, i18n.language) })}
-        </Text>
-      )}
 
       <Text style={styles.sectionTitle}>{t("recharge.rechargeCoins")}</Text>
       <CoinPackGrid selectedId={pack.id} onSelect={onChoosePack} />
@@ -111,8 +95,10 @@ export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }:
       </View>
 
       <View style={styles.premiumWrap}>
-        <MembershipCard onPress={getPremium} busy={purchasingPremium} />
+        <MembershipCard onPress={onChooseMembership} />
       </View>
+
+      <RechargeActions chosenPackId={chosenPackId} onUnlocked={onUnlocked} />
     </View>
   );
 }
@@ -127,54 +113,21 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   headerTitle: { fontFamily: fonts.display, fontSize: 20, color: colors.textPrimary },
-  episodeCard: {
+  summary: {
     flexDirection: "row",
-    gap: 14,
+    gap: 12,
     marginHorizontal: SIDE_PADDING,
-    padding: 12,
+    padding: 10,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surfaceRaised,
   },
-  thumb: { width: 56, height: 78, borderRadius: 8, backgroundColor: colors.surface },
-  episodeText: { flex: 1, justifyContent: "center", gap: 4 },
-  seriesTitle: { fontFamily: fonts.display, fontSize: 18, color: colors.textPrimary },
-  episodeStatus: { fontFamily: fonts.body, fontSize: 13, color: colors.textMuted },
-  costChip: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    backgroundColor: "rgba(100,237,247,0.12)",
-  },
-  costText: { fontFamily: fonts.bodySemiBold, fontSize: 12, color: colors.primary },
-  balance: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginHorizontal: SIDE_PADDING,
-    marginTop: 10,
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceRaised,
-  },
-  balanceLabel: { fontFamily: fonts.body, fontSize: 14, color: colors.textMuted },
-  balanceValue: { flexDirection: "row", alignItems: "center", gap: 6 },
-  balanceText: { fontFamily: fonts.bodyBold, fontSize: 16, color: colors.textPrimary },
-  missing: {
-    marginHorizontal: SIDE_PADDING,
-    marginTop: 8,
-    fontFamily: fonts.bodyMedium,
-    fontSize: 13,
-    color: colors.accent,
-  },
+  thumb: { width: 48, height: 68, borderRadius: 8, backgroundColor: colors.surface },
+  summaryText: { flex: 1, justifyContent: "center", gap: 3 },
+  seriesTitle: { fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.textPrimary },
+  costText: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.primary },
+  balanceLine: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted },
   sectionTitle: {
     marginTop: 14,
     marginBottom: 10,

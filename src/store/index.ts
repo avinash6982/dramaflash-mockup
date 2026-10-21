@@ -5,6 +5,7 @@ import { STARTING_COINS } from "@/data/coinPacks";
 import favouritesReducer from "./favouritesSlice";
 import type { SavedState } from "./persist";
 import playerReducer from "./playerSlice";
+import rewardsReducer from "./rewardsSlice";
 import unlocksReducer from "./unlocksSlice";
 import walletReducer from "./walletSlice";
 
@@ -19,6 +20,7 @@ const appReducer = combineReducers({
   unlocks: unlocksReducer,
   player: playerReducer,
   favourites: favouritesReducer,
+  rewards: rewardsReducer,
 });
 
 const rootReducer: typeof appReducer = (state, action) => {
@@ -33,6 +35,7 @@ const rootReducer: typeof appReducer = (state, action) => {
     wallet: { ...current.wallet, ...saved.wallet },
     unlocks: { ...current.unlocks, ...saved.unlocks },
     favourites: saved.favourites,
+    rewards: { ...current.rewards, claimedEpisodeIds: saved.rewards.claimedEpisodeIds },
   };
 };
 
@@ -54,6 +57,7 @@ export function hasDemoChanges(state: RootState): boolean {
     unlocks.unlockedEpisodeIds.length > 0 ||
     unlocks.unlockedSeriesIds.length > 0 ||
     favourites.seriesIds.length > 0 ||
-    favourites.likedEpisodeIds.length > 0
+    favourites.likedEpisodeIds.length > 0 ||
+    state.rewards.claimedEpisodeIds.length > 0
   );
 }

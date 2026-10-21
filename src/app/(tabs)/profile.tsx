@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ActionConfirmSheet } from "@/components/ActionConfirmSheet";
 import { MembershipCard } from "@/components/MembershipCard";
 import { formatDate, formatNumber } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -28,7 +30,14 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
-  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  // One confirmation sheet serves both actions; each tap asks it to open again (request counter)
+  const confirmSheetRef = useRef<BottomSheetModal>(null);
+  const [pendingAction, setPendingAction] = useState<"cancel" | "reset">("reset");
+  const [confirmRequest, setConfirmRequest] = useState(0);
+  const askToConfirm = (action: "cancel" | "reset") => {
+    setPendingAction(action);
+    setConfirmRequest((count) => count + 1);
+  };
 
   const coins = useAppSelector((state) => state.wallet.coins);
   const status = useAppSelector(membershipStatus);
@@ -38,9 +47,10 @@ export default function ProfileScreen() {
 
   const date = renewsOn ? formatDate(renewsOn, i18n.language) : "";
 
-  const cancel = async () => {
-    await dispatch(cancelPremium()).unwrap();
-    setConfirmingCancel(false);
+  const confirmAction = async () => {
+    if (pendingAction === "cancel") await dispatch(cancelPremium()).unwrap();
+    else dispatch(resetDemo());
+    confirmSheetRef.current?.dismiss();
   };
 
   return (
@@ -80,36 +90,10 @@ export default function ProfileScreen() {
           }
         />
 
-        {confirmingCancel ? (
-          <View style={styles.confirm}>
-            <Text style={styles.confirmText}>{t("profile.cancelQuestion", { date })}</Text>
-            <View style={styles.confirmButtons}>
-              <Pressable
-                style={({ pressed }) => [styles.secondaryButton, pressed && pressedStyle]}
-                onPress={() => setConfirmingCancel(false)}
-                disabled={busy}
-                accessibilityRole="button"
-              >
-                <Text style={styles.secondaryButtonText}>{t("profile.keep")}</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [styles.dangerButton, pressed && pressedStyle]}
-                onPress={cancel}
-                disabled={busy}
-                accessibilityRole="button"
-              >
-                {busy ? (
-                  <ActivityIndicator color={colors.textPrimary} />
-                ) : (
-                  <Text style={styles.dangerButtonText}>{t("profile.confirmCancel")}</Text>
-                )}
-              </Pressable>
-            </View>
-          </View>
-        ) : status === "active" ? (
+        {status === "active" ? (
           <Pressable
             style={({ pressed }) => [styles.linkButton, pressed && pressedStyle]}
-            onPress={() => setConfirmingCancel(true)}
+            onPress={() => askToConfirm("cancel")}
             accessibilityRole="button"
           >
             <Text style={styles.linkText}>{t("profile.cancelMembership")}</Text>
@@ -161,7 +145,7 @@ export default function ProfileScreen() {
         <View style={styles.reset}>
           <Pressable
             style={({ pressed }) => [styles.resetButton, pressed && pressedStyle]}
-            onPress={() => dispatch(resetDemo())}
+            onPress={() => askToConfirm("reset")}
             accessibilityRole="button"
           >
             <Ionicons name="refresh" size={16} color={colors.textMuted} />
@@ -170,6 +154,21 @@ export default function ProfileScreen() {
           <Text style={styles.resetNote}>{t("profile.resetNote")}</Text>
         </View>
       )}
+      <ActionConfirmSheet
+        sheetRef={confirmSheetRef}
+        openRequest={confirmRequest}
+        title={pendingAction === "cancel" ? t("confirm.cancelTitle") : t("confirm.resetTitle")}
+        message={
+          pendingAction === "cancel"
+            ? t("profile.cancelQuestion", { date })
+            : t("confirm.resetQuestion")
+        }
+        confirmLabel={
+          pendingAction === "cancel" ? t("profile.confirmCancel") : t("confirm.resetYes")
+        }
+        busy={busy}
+        onConfirm={confirmAction}
+      />
     </ScrollView>
   );
 }
@@ -216,30 +215,9 @@ const styles = StyleSheet.create({
   primaryButtonText: { fontFamily: fonts.bodySemiBold, fontSize: 15, color: colors.onPrimary },
   linkButton: { alignSelf: "flex-start", paddingVertical: 4 },
   linkText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.accent },
-  confirm: { gap: 12 },
-  confirmText: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.textPrimary },
-  confirmButtons: { flexDirection: "row", gap: 10 },
-  secondaryButton: {
-    flex: 1,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryButtonText: { fontFamily: fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary },
-  dangerButton: {
-    flex: 1,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 22,
-    backgroundColor: colors.accent,
-  },
-  dangerButtonText: { fontFamily: fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary },
-  reset: { alignItems: "center", gap: 6, marginTop: 8 },
+  reset: { alignItems: "stretch", gap: 6, marginTop: 8 },
   resetButton: {
+    alignSelf: "center",
     height: 40,
     flexDirection: "row",
     alignItems: "center",

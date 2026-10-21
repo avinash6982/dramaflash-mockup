@@ -35,7 +35,7 @@ export function BuyCoinsSheet() {
     sheetRef.current?.dismiss();
   };
 
-  const footer = (
+  const actions = (
     <View>
       <View style={styles.secure}>
         <Ionicons name="shield-checkmark-outline" size={15} color={colors.textMuted} />
@@ -70,7 +70,6 @@ export function BuyCoinsSheet() {
       openRequest={openRequest}
       onDismiss={() => setChosenId(DEFAULT_PACK_ID)}
       scrollable
-      footer={footer}
     >
       <View style={styles.header}>
         <Text style={styles.title}>{t("recharge.rechargeCoins")}</Text>
@@ -82,6 +81,7 @@ export function BuyCoinsSheet() {
         </View>
       </View>
       <CoinPackGrid selectedId={pack.id} onSelect={setChosenId} />
+      {actions}
     </AppBottomSheet>
   );
 }
@@ -98,7 +98,13 @@ const styles = StyleSheet.create({
   title: { fontFamily: fonts.display, fontSize: 22, color: colors.textPrimary },
   balance: { flexDirection: "row", alignItems: "center", gap: 6 },
   balanceText: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.textPrimary },
-  secure: { flexDirection: "row", alignSelf: "center", alignItems: "center", gap: 6, marginTop: 4 },
+  secure: {
+    flexDirection: "row",
+    alignSelf: "center",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 16,
+  },
   secureText: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted },
   buy: {
     height: 58,

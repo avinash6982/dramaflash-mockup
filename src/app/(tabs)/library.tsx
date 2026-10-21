@@ -107,7 +107,9 @@ export default function LibraryScreen() {
                 <Text style={styles.historyTitle}>
                   {transaction.kind === "purchase"
                     ? t("library.coinsBought")
-                    : t("library.unlockedWithCoins")}
+                    : transaction.kind === "reward"
+                      ? t("library.rewardBonus")
+                      : t("library.unlockedWithCoins")}
                 </Text>
                 <Text style={styles.rowNote}>
                   {formatDate(transaction.createdAt, i18n.language)}

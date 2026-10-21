@@ -12,6 +12,7 @@ import { AppFrame } from "@/components/AppFrame";
 import { BuyCoinsSheet } from "@/components/BuyCoinsSheet";
 import { ErrorScreen } from "@/components/ErrorScreen";
 import { MembershipSheet } from "@/components/MembershipSheet";
+import { SeasonPurchaseSheet } from "@/components/SeasonPurchaseSheet";
 import { initI18n } from "@/i18n";
 import { restoreSaved, store } from "@/store";
 import { loadSavedState, startSaving } from "@/store/persist";
@@ -60,6 +61,7 @@ export default function RootLayout() {
               <Stack screenOptions={{ headerShown: false }} />
               <BuyCoinsSheet />
               <MembershipSheet />
+              <SeasonPurchaseSheet />
             </BottomSheetModalProvider>
           </GestureHandlerRootView>
         </AppFrame>

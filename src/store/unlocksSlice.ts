@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 import { EPISODE_UNLOCK_COST, SEASON_UNLOCK_COST } from "@/data/coinPacks";
 import { getSeries } from "@/data/series";
@@ -14,6 +15,7 @@ type UnlocksState = {
   premiumCancelled: boolean; // a cancelled member keeps access until premiumRenewsOn
   premiumBusy: boolean; // a mocked purchase or cancellation is running
   membershipSheetRequest: number; // each tap on Subscribe adds 1 (the sheet opens when it goes up)
+  seasonSheet: { request: number; seriesId: string | null }; // the EUR season purchase to confirm
 };
 
 const initialState: UnlocksState = {
@@ -25,6 +27,7 @@ const initialState: UnlocksState = {
   premiumCancelled: false,
   premiumBusy: false,
   membershipSheetRequest: 0,
+  seasonSheet: { request: 0, seriesId: null },
 };
 
 const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
@@ -87,6 +90,9 @@ const unlocksSlice = createSlice({
     openMembershipSheet: (state) => {
       state.membershipSheetRequest += 1;
     },
+    openSeasonSheet: (state, action: PayloadAction<string>) => {
+      state.seasonSheet = { request: state.seasonSheet.request + 1, seriesId: action.payload };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -131,7 +137,7 @@ const unlocksSlice = createSlice({
   },
 });
 
-export const { openMembershipSheet } = unlocksSlice.actions;
+export const { openMembershipSheet, openSeasonSheet } = unlocksSlice.actions;
 export default unlocksSlice.reducer;
 
 export const isSeasonUnlocked = (state: RootState, seriesId: string) =>

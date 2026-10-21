@@ -9,6 +9,7 @@ import { HomeHeader } from "@/components/HomeHeader";
 import { HomeHero } from "@/components/HomeHero";
 import { Rail } from "@/components/Rail";
 import { getSeries, heroSeriesId, homeGenres, homeSections } from "@/data/series";
+import type { GenreId } from "@/data/series";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/typography";
 
@@ -18,7 +19,7 @@ const HEADER_SOLID_OFFSET = 360;
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const [genre, setGenre] = useState<string | null>(null); // null means "All"
+  const [genre, setGenre] = useState<GenreId | null>(null); // null means "All"
   const [headerSolid, setHeaderSolid] = useState(false);
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {

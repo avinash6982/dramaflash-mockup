@@ -18,3 +18,7 @@ export const coinPacks: CoinPack[] = [
 export const EPISODE_UNLOCK_COST = 85;
 export const SEASON_UNLOCK_COST = 1200;
 export const STARTING_COINS = 15;
+
+// Real-money prices, defined once (the design shows $9.99 per month on one screen and EUR 4.99 per week on another)
+export const SEASON_PRICE_EUR = 9.99;
+export const MEMBERSHIP = { name: "Premium Membership", priceEur: 9.99, period: "month" } as const;

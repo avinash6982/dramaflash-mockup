@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import type { Series } from "@/data/series";
+import { useLocalized } from "@/hooks/useLocalized";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
@@ -16,13 +17,15 @@ type Props = { series: Series; onPress: () => void };
 
 export function PosterCard({ series, onPress }: Props) {
   const { t } = useTranslation();
+  const localized = useLocalized();
+  const title = localized(series.title);
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => pressed && pressedStyle}
       accessibilityRole="button"
-      accessibilityLabel={series.title}
+      accessibilityLabel={title}
     >
       <View style={styles.poster}>
         <Image
@@ -54,7 +57,7 @@ export function PosterCard({ series, onPress }: Props) {
         </View>
       </View>
       <Text style={styles.title} numberOfLines={2}>
-        {series.title}
+        {title}
       </Text>
     </Pressable>
   );

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Episode } from "@/data/series";
+import { useLocalized } from "@/hooks/useLocalized";
 import { useAppSelector } from "@/store/hooks";
 import { isEpisodeLocked } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
@@ -15,6 +16,7 @@ type Props = { seriesId: string; index: number; episode: Episode; onPress: () =>
 // One line in the episode list: thumbnail with a play or lock badge, title and duration
 export function EpisodeRow({ seriesId, index, episode, onPress }: Props) {
   const { t } = useTranslation();
+  const localized = useLocalized();
   const locked = useAppSelector((state) => isEpisodeLocked(state, seriesId, index));
 
   return (
@@ -41,7 +43,7 @@ export function EpisodeRow({ seriesId, index, episode, onPress }: Props) {
 
       <View style={styles.text}>
         <Text style={styles.title} numberOfLines={2}>
-          {index + 1}. {episode.title}
+          {index + 1}. {localized(episode.title)}
         </Text>
         <View style={styles.metaRow}>
           <Ionicons name="time-outline" size={14} color={colors.textMuted} />

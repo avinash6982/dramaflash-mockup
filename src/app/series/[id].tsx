@@ -10,16 +10,18 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EpisodeRow } from "@/components/EpisodeRow";
 import { Rail } from "@/components/Rail";
 import { SeasonBanner } from "@/components/SeasonBanner";
+import { SEASON_PRICE_EUR } from "@/data/coinPacks";
 import { alsoLikeSeriesIds, findSeries, getSeries } from "@/data/series";
 import type { Series } from "@/data/series";
 import { useBottomInset } from "@/hooks/useBottomInset";
+import { useGoBack } from "@/hooks/useGoBack";
+import { useLocalized } from "@/hooks/useLocalized";
+import { formatEuro } from "@/i18n/formatPrice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { isSeasonUnlocked, purchaseSeason } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
-
-const SEASON_PRICE_LABEL = "€9.99";
 
 // Fixed heights above "Play Ep 1" put its top edge at 440, the same place as the Home hero's
 // "Watch now" button (500 hero - 12 padding - 48 button), so it looks still when navigating between them.
@@ -36,8 +38,10 @@ export default function SeriesScreen() {
 }
 
 function SeriesDetail({ series }: { series: Series }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const localized = useLocalized();
   const router = useRouter();
+  const goBack = useGoBack();
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const bottomInset = useBottomInset();
@@ -50,7 +54,7 @@ function SeriesDetail({ series }: { series: Series }) {
     router.push({ pathname: "/watch/[id]", params: { id: series.id, episode: episodeIndex } });
   const openSeries = (seriesId: string) =>
     router.push({ pathname: "/series/[id]", params: { id: seriesId } });
-  const share = () => Share.share({ message: series.title }).catch(() => {});
+  const share = () => Share.share({ message: localized(series.title) }).catch(() => {});
 
   return (
     <View style={styles.container}>
@@ -73,12 +77,12 @@ function SeriesDetail({ series }: { series: Series }) {
           <View style={styles.tags}>
             {series.genres.map((genre) => (
               <View key={genre} style={styles.tag}>
-                <Text style={styles.tagText}>{genre}</Text>
+                <Text style={styles.tagText}>{t(`genres.${genre}`)}</Text>
               </View>
             ))}
           </View>
 
-          <Text style={styles.title}>{series.title}</Text>
+          <Text style={styles.title}>{localized(series.title)}</Text>
 
           <View style={styles.metaRow}>
             <Ionicons name="star-outline" size={16} color={colors.textPrimary} />
@@ -115,7 +119,7 @@ function SeriesDetail({ series }: { series: Series }) {
           </View>
 
           <Text style={styles.heading}>{t("series.synopsis")}</Text>
-          <Text style={styles.synopsis}>{series.synopsis}</Text>
+          <Text style={styles.synopsis}>{localized(series.synopsis)}</Text>
 
           <View style={styles.highlights}>
             <View style={styles.highlightsTitleRow}>
@@ -123,39 +127,44 @@ function SeriesDetail({ series }: { series: Series }) {
               <Text style={styles.highlightsTitle}>{t("series.whyYoullLoveIt")}</Text>
             </View>
             {series.highlights.map((line) => (
-              <View key={line} style={styles.highlightRow}>
+              <View key={line.en} style={styles.highlightRow}>
                 <Ionicons name="flame-outline" size={16} color={colors.primary} />
-                <Text style={styles.highlightText}>{line}</Text>
+                <Text style={styles.highlightText}>{localized(line)}</Text>
               </View>
             ))}
           </View>
 
-          <View style={styles.divider} />
-
-          <Text style={styles.heading}>{t("series.castAndCrew")}</Text>
+          {series.cast.length > 0 && (
+            <>
+              <View style={styles.divider} />
+              <Text style={styles.heading}>{t("series.castAndCrew")}</Text>
+            </>
+          )}
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.castRow}
-        >
-          {series.cast.map((member) => (
-            <View key={member.name} style={styles.cast}>
-              <Image
-                source={member.photo}
-                style={styles.castPhoto}
-                contentFit="cover"
-                transition={IMAGE_FADE_MS}
-              />
-              <Text style={styles.castName} numberOfLines={1}>
-                {member.name}
-              </Text>
-              <Text style={styles.castRole} numberOfLines={2}>
-                {member.role}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
+        {series.cast.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.castRow}
+          >
+            {series.cast.map((member) => (
+              <View key={member.name} style={styles.cast}>
+                <Image
+                  source={member.photo}
+                  style={styles.castPhoto}
+                  contentFit="cover"
+                  transition={IMAGE_FADE_MS}
+                />
+                <Text style={styles.castName} numberOfLines={1}>
+                  {member.name}
+                </Text>
+                <Text style={styles.castRole} numberOfLines={2}>
+                  {member.character} ({localized(member.role)})
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        )}
 
         <View style={styles.body}>
           <View style={styles.episodesHeader}>
@@ -167,7 +176,7 @@ function SeriesDetail({ series }: { series: Series }) {
 
           {!seasonUnlocked && (
             <SeasonBanner
-              priceLabel={SEASON_PRICE_LABEL}
+              priceLabel={formatEuro(SEASON_PRICE_EUR, i18n.language)}
               purchasing={purchasing}
               onPress={() => dispatch(purchaseSeason(series.id))}
             />
@@ -176,7 +185,7 @@ function SeriesDetail({ series }: { series: Series }) {
           <View style={styles.episodes}>
             {series.episodes.map((episode, index) => (
               <EpisodeRow
-                key={episode.title}
+                key={index}
                 seriesId={series.id}
                 index={index}
                 episode={episode}
@@ -197,7 +206,7 @@ function SeriesDetail({ series }: { series: Series }) {
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <Pressable
           style={({ pressed }) => [styles.topButton, pressed && pressedStyle]}
-          onPress={() => router.back()}
+          onPress={goBack}
           accessibilityRole="button"
           accessibilityLabel={t("series.back")}
         >

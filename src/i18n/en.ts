@@ -3,11 +3,13 @@ export const en = {
   tabs: {
     home: "Home",
     discover: "Discover",
-    romance: "Romance",
+    favourites: "Favourites",
     library: "Library",
     profile: "Profile",
   },
   common: {
+    notFoundTitle: "Page not found",
+    goHome: "Go to Home",
     comingSoon: "Coming soon",
   },
   series: {
@@ -23,6 +25,17 @@ export const en = {
     back: "Back",
     share: "Share",
     addToFavourites: "Add to favourites",
+  },
+  genres: {
+    romance: "Romance",
+    drama: "Drama",
+    billionaire: "Billionaire",
+    secretIdentity: "Secret Identity",
+    thriller: "Thriller",
+    fantasy: "Fantasy",
+    forbiddenLove: "Forbidden Love",
+    action: "Action",
+    mystery: "Mystery",
   },
   home: {
     watchNow: "Watch now",

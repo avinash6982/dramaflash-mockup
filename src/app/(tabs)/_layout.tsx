@@ -11,10 +11,10 @@ const TAB_BAR_HEIGHT = 64; // top padding, icon and label, without the bottom in
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
 // Only Home works in the mock-up; the other tabs show a placeholder
-const tabs: { name: string; titleKey: "home" | "discover" | "romance" | "library" | "profile"; icon: IconName }[] = [
+const tabs: { name: string; titleKey: "home" | "discover" | "favourites" | "library" | "profile"; icon: IconName }[] = [
   { name: "index", titleKey: "home", icon: "home-outline" },
   { name: "discover", titleKey: "discover", icon: "compass-outline" },
-  { name: "romance", titleKey: "romance", icon: "heart-outline" },
+  { name: "favourites", titleKey: "favourites", icon: "heart-outline" },
   { name: "library", titleKey: "library", icon: "bookmark-outline" },
   { name: "profile", titleKey: "profile", icon: "person-outline" },
 ];

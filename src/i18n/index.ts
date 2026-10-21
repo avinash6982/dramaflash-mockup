@@ -5,8 +5,7 @@ import { initReactI18next } from "react-i18next";
 
 import { de } from "./de";
 import { en } from "./en";
-
-export type Language = "en" | "de";
+import type { Language } from "./localized";
 
 const STORAGE_KEY = "language";
 

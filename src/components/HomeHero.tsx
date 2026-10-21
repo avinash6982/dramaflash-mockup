@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Series } from "@/data/series";
+import { useLocalized } from "@/hooks/useLocalized";
 import { colors } from "@/theme/colors";
 import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
@@ -15,6 +16,7 @@ type Props = { series: Series; onWatch: () => void };
 // Featured series at the top of Home
 export function HomeHero({ series, onWatch }: Props) {
   const { t } = useTranslation();
+  const localized = useLocalized();
   const [inMyList, setInMyList] = useState(false);
 
   return (
@@ -36,11 +38,11 @@ export function HomeHero({ series, onWatch }: Props) {
           <View style={styles.spotlight}>
             <Text style={styles.spotlightText}>{t("home.spotlight")}</Text>
           </View>
-          <Text style={styles.genres}>{series.genres.join("  •  ")}</Text>
+          <Text style={styles.genres}>{series.genres.map((genre) => t(`genres.${genre}`)).join("  •  ")}</Text>
         </View>
 
-        <Text style={styles.title}>{series.title}</Text>
-        <Text style={styles.synopsis}>{series.synopsis}</Text>
+        <Text style={styles.title}>{localized(series.title)}</Text>
+        <Text style={styles.synopsis}>{localized(series.synopsis)}</Text>
 
         <View style={styles.ratingRow}>
           <Ionicons name="star-outline" size={16} color={colors.textPrimary} />

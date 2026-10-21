@@ -1,19 +1,23 @@
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 
+import type { GenreId } from "@/data/series";
 import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 type Props = {
-  genres: string[];
-  selected: string | null; // null means "All"
-  onSelect: (genre: string | null) => void;
+  genres: GenreId[];
+  selected: GenreId | null; // null means "All"
+  onSelect: (genre: GenreId | null) => void;
 };
 
 export function GenreChips({ genres, selected, onSelect }: Props) {
   const { t } = useTranslation();
-  const chips = [{ value: null, label: t("home.all") }, ...genres.map((g) => ({ value: g, label: g }))];
+  const chips = [
+    { value: null, label: t("home.all") },
+    ...genres.map((genre) => ({ value: genre, label: t(`genres.${genre}`) })),
+  ];
 
   return (
     <ScrollView

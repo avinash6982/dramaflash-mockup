@@ -12,6 +12,8 @@ import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
+import { PROGRESS_BAR_SPACE } from "./EpisodeProgress";
+
 const BASE_LIKES = 12000;
 
 type Props = { series: Series; index: number };
@@ -34,7 +36,10 @@ export function EpisodeOverlay({ series, index }: Props) {
         pointerEvents="none"
       />
 
-      <View style={[styles.info, { paddingBottom: bottomInset + 40 }]} pointerEvents="none">
+      <View
+        style={[styles.info, { paddingBottom: bottomInset + PROGRESS_BAR_SPACE + 12 }]}
+        pointerEvents="none"
+      >
         <Text style={styles.title}>{title}</Text>
         <View style={styles.badgeRow}>
           <View style={styles.badge}>
@@ -44,7 +49,7 @@ export function EpisodeOverlay({ series, index }: Props) {
         </View>
       </View>
 
-      <View style={[styles.rail, { bottom: bottomInset + 56 }]}>
+      <View style={[styles.rail, { bottom: bottomInset + PROGRESS_BAR_SPACE + 28 }]}>
         <Pressable
           style={({ pressed }) => [styles.railButton, pressed && pressedStyle]}
           onPress={() => setLiked((value) => !value)}

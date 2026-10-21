@@ -8,6 +8,9 @@ import { colors } from "@/theme/colors";
 import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
+// Soft enough that the artwork stays recognisable behind the card
+const BLUR_RADIUS = 4;
+
 type Props = { series: Series; index: number; onUnlock: () => void };
 
 // What a locked episode shows instead of the video: the artwork, blurred, with an unlock card
@@ -16,7 +19,7 @@ export function LockedEpisode({ series, index, onUnlock }: Props) {
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      <Image source={series.poster} style={StyleSheet.absoluteFill} contentFit="cover" blurRadius={40} />
+      <Image source={series.poster} style={StyleSheet.absoluteFill} contentFit="cover" blurRadius={BLUR_RADIUS} />
       <View style={styles.dim} />
       <View style={styles.center}>
         <Pressable
@@ -38,7 +41,7 @@ export function LockedEpisode({ series, index, onUnlock }: Props) {
 }
 
 const styles = StyleSheet.create({
-  dim: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.3)" },
+  dim: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.25)" },
   center: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center" },
   card: {
     alignItems: "center",

@@ -1,14 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet } from "react-native";
 import type { LayoutChangeEvent, ViewToken } from "react-native";
+import { GestureDetector } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EpisodePage } from "@/components/EpisodePage";
+import { SwipeHint } from "@/components/SwipeHint";
 import { clampEpisodeIndex, findSeries } from "@/data/series";
 import type { Series } from "@/data/series";
 import { useGoBack } from "@/hooks/useGoBack";
+import { useSwipeToClose } from "@/hooks/useSwipeToClose";
 import { useWheelPaging } from "@/hooks/useWheelPaging";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { closeLockSheet, openLockSheet, setEpisode } from "@/store/playerSlice";
@@ -37,14 +41,17 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
   const [height, setHeight] = useState(0);
   const listRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(startIndex);
+  const [swiped, setSwiped] = useState(false); // the "swipe up" cue goes away after the first swipe
   const [scrubbing, setScrubbing] = useState(false); // dragging the progress bar must not scroll the feed
 
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       const first = viewableItems[0];
-      if (first?.index != null) setActiveIndex(first.index);
+      if (first?.index == null) return;
+      setActiveIndex(first.index);
+      if (first.index !== startIndex) setSwiped(true);
     },
-    [],
+    [startIndex],
   );
 
   const activeIsLocked = useAppSelector((state) => isEpisodeLocked(state, series.id, activeIndex));
@@ -67,6 +74,13 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
     listMounted: height > 0,
   });
 
+  // Pull down on the first episode to close the player
+  const swipeToClose = useSwipeToClose({
+    enabled: activeIndex === 0 && !scrubbing && height > 0,
+    height,
+    onClose: goBack,
+  });
+
   const goToNext = (index: number) => {
     if (index + 1 < series.episodes.length) {
       listRef.current?.scrollToIndex({ index: index + 1, animated: true });
@@ -74,50 +88,55 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
   };
 
   return (
-    <View
-      style={styles.container}
-      onLayout={(event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height)}
-    >
-      {height > 0 && (
-        <FlatList
-          ref={listRef}
-          data={series.episodes}
-          keyExtractor={(_, index) => String(index)}
-          renderItem={({ index }) => (
-            <EpisodePage
-              series={series}
-              index={index}
-              height={height}
-              active={index === activeIndex}
-              onEnded={() => goToNext(index)}
-              onScrubbingChange={setScrubbing}
-            />
-          )}
-          pagingEnabled
-          scrollEnabled={!scrubbing}
-          snapToInterval={height}
-          decelerationRate="fast"
-          disableIntervalMomentum // one swipe moves exactly one episode, however hard you flick
-          showsVerticalScrollIndicator={false}
-          getItemLayout={(_, index) => ({ length: height, offset: height * index, index })}
-          initialScrollIndex={startIndex}
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={VIEWABILITY_CONFIG}
-          windowSize={3}
-          initialNumToRender={1}
-          maxToRenderPerBatch={1}
-        />
-      )}
-
-      <Pressable
-        style={({ pressed }) => [styles.back, { top: insets.top + 8 }, pressed && pressedStyle]}
-        onPress={goBack}
-        accessibilityRole="button"
-        accessibilityLabel="Back"
+    <GestureDetector gesture={swipeToClose.gesture}>
+      <Animated.View
+        style={[styles.container, swipeToClose.style]}
+        onLayout={(event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height)}
       >
-        <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
-      </Pressable>
-    </View>
+        {height > 0 && (
+          <FlatList
+            ref={listRef}
+            data={series.episodes}
+            keyExtractor={(_, index) => String(index)}
+            renderItem={({ index }) => (
+              <EpisodePage
+                series={series}
+                index={index}
+                height={height}
+                active={index === activeIndex}
+                onEnded={() => goToNext(index)}
+                onScrubbingChange={setScrubbing}
+              />
+            )}
+            pagingEnabled
+            bounces={false} // no rubber band at the top, so pulling down can close the player
+            scrollEnabled={!scrubbing}
+            snapToInterval={height}
+            decelerationRate="fast"
+            disableIntervalMomentum // one swipe moves exactly one episode, however hard you flick
+            showsVerticalScrollIndicator={false}
+            getItemLayout={(_, index) => ({ length: height, offset: height * index, index })}
+            initialScrollIndex={startIndex}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={VIEWABILITY_CONFIG}
+            windowSize={3}
+            initialNumToRender={1}
+            maxToRenderPerBatch={1}
+          />
+        )}
+
+        {height > 0 && series.episodes.length > 1 && <SwipeHint hidden={swiped} />}
+
+        <Pressable
+          style={({ pressed }) => [styles.back, { top: insets.top + 8 }, pressed && pressedStyle]}
+          onPress={goBack}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
+        </Pressable>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 

@@ -13,6 +13,7 @@ export const en = {
     comingSoon: "Coming soon",
   },
   series: {
+    showMoreEpisodes: "Show more episodes",
     playEpisode: "Play Ep {{number}}",
     synopsis: "Synopsis",
     whyYoullLoveIt: "Why you'll love it",
@@ -38,6 +39,7 @@ export const en = {
     mystery: "Mystery",
   },
   player: {
+    swipeUp: "Swipe up",
     episodeShort: "Ep {{number}}",
     unlockEpisode: "Unlock Episode {{number}}",
     like: "Like",

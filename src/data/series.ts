@@ -96,20 +96,24 @@ const ceoEpisodes: Episode[] = [
   { title: { en: "Midnight Confessions", de: "Geständnisse um Mitternacht" }, duration: "3:15", thumb: require("../../assets/images/ep-thumb-6-locked.webp"), video: videos.ceo2 },
 ];
 
-// Every other series gets plain "Episode N" rows with its own poster as thumbnail, and durations
-// around its minutes per episode, so nothing on screen contradicts anything else.
+// Every episode without a name from the design is a plain "Episode N" row with the series' own
+// poster as thumbnail, and a duration around the series' minutes per episode, so nothing on
+// screen contradicts anything else.
 const durationOffsetsInSeconds = [12, -5, 30, 65, -12, 15];
 
 function plainEpisodes(
   poster: ImageSourcePropType,
   video: VideoSource,
   minutesPerEpisode: number,
+  count: number,
+  firstNumber = 1,
 ): Episode[] {
-  return durationOffsetsInSeconds.map((offset, index) => {
+  return Array.from({ length: count }, (_, index) => {
+    const offset = durationOffsetsInSeconds[index % durationOffsetsInSeconds.length];
     const seconds = minutesPerEpisode * 60 + offset;
     const duration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
     return {
-      title: { en: `Episode ${index + 1}`, de: `Folge ${index + 1}` },
+      title: { en: `Episode ${firstNumber + index}`, de: `Folge ${firstNumber + index}` },
       duration,
       thumb: poster,
       video,
@@ -146,7 +150,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.veLiebe,
-    episodes: plainEpisodes(images.veLiebe, videos.veLiebe, 2),
+    episodes: plainEpisodes(images.veLiebe, videos.veLiebe, 2, 72),
   },
   {
     ...base,
@@ -163,7 +167,8 @@ export const series: Series[] = [
     isPro: false,
     poster: images.ceosSecretLife,
     cast: ceoCast,
-    episodes: ceoEpisodes,
+    // six named episodes from the design, then plain ones up to 45
+    episodes: [...ceoEpisodes, ...plainEpisodes(images.ceosSecretLife, videos.ceo3, 3, 39, 7)],
   },
   {
     ...base,
@@ -176,7 +181,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.ceoAndI,
-    episodes: plainEpisodes(images.ceoAndI, videos.ceoAndI, 2),
+    episodes: plainEpisodes(images.ceoAndI, videos.ceoAndI, 2, 50),
   },
   {
     ...base,
@@ -189,7 +194,7 @@ export const series: Series[] = [
     minutesPerEpisode: 1,
     isPro: false,
     poster: images.mySecretLife,
-    episodes: plainEpisodes(images.mySecretLife, videos.mySecretLife, 1),
+    episodes: plainEpisodes(images.mySecretLife, videos.mySecretLife, 1, 30),
   },
   {
     ...base,
@@ -202,7 +207,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.loveOnDetours,
-    episodes: plainEpisodes(images.loveOnDetours, videos.loveOnDetours, 2),
+    episodes: plainEpisodes(images.loveOnDetours, videos.loveOnDetours, 2, 65),
   },
   {
     ...base,
@@ -215,7 +220,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.bloodyRoses,
-    episodes: plainEpisodes(images.bloodyRoses, videos.bloodyRoses, 2),
+    episodes: plainEpisodes(images.bloodyRoses, videos.bloodyRoses, 2, 80),
   },
   {
     ...base,
@@ -231,7 +236,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.shadowKiss,
-    episodes: plainEpisodes(images.shadowKiss, videos.shadowKiss, 2),
+    episodes: plainEpisodes(images.shadowKiss, videos.shadowKiss, 2, 45),
   },
   {
     ...base,
@@ -244,7 +249,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.darkDesire,
-    episodes: plainEpisodes(images.darkDesire, videos.darkDesire, 2),
+    episodes: plainEpisodes(images.darkDesire, videos.darkDesire, 2, 60),
   },
   {
     ...base,
@@ -260,7 +265,7 @@ export const series: Series[] = [
     minutesPerEpisode: 3,
     isPro: true,
     poster: images.avengingAngel,
-    episodes: plainEpisodes(images.avengingAngel, videos.avengingAngel, 3),
+    episodes: plainEpisodes(images.avengingAngel, videos.avengingAngel, 3, 90),
   },
   {
     ...base,
@@ -276,7 +281,7 @@ export const series: Series[] = [
     minutesPerEpisode: 1,
     isPro: false,
     poster: images.bandOfFate,
-    episodes: plainEpisodes(images.bandOfFate, videos.bandOfFate, 1),
+    episodes: plainEpisodes(images.bandOfFate, videos.bandOfFate, 1, 25),
   },
   {
     ...base,
@@ -289,7 +294,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: true,
     poster: images.secondChance,
-    episodes: plainEpisodes(images.secondChance, videos.secondChance, 2),
+    episodes: plainEpisodes(images.secondChance, videos.secondChance, 2, 55),
   },
   {
     ...base,
@@ -305,7 +310,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.forbiddenVows,
-    episodes: plainEpisodes(images.forbiddenVows, videos.forbiddenVows, 2),
+    episodes: plainEpisodes(images.forbiddenVows, videos.forbiddenVows, 2, 40),
   },
   {
     ...base,
@@ -321,7 +326,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.fastLane,
-    episodes: plainEpisodes(images.fastLane, videos.fastLane, 2),
+    episodes: plainEpisodes(images.fastLane, videos.fastLane, 2, 35),
   },
   {
     ...base,
@@ -337,7 +342,7 @@ export const series: Series[] = [
     minutesPerEpisode: 2,
     isPro: false,
     poster: images.heirsDilemma,
-    episodes: plainEpisodes(images.heirsDilemma, videos.heirsDilemma, 2),
+    episodes: plainEpisodes(images.heirsDilemma, videos.heirsDilemma, 2, 38),
   },
 ];
 
@@ -372,6 +377,12 @@ export function getSeries(id: string): Series {
   const found = findSeries(id);
   if (!found) throw new Error(`Unknown series: ${id}`);
   return found;
+}
+
+// "3:12" becomes 192 seconds
+export function durationToSeconds(duration: string): number {
+  const [minutes, seconds] = duration.split(":").map(Number);
+  return minutes * 60 + seconds;
 }
 
 // Episode index from a route param: a missing, non-numeric or out-of-range value falls back to the nearest valid one

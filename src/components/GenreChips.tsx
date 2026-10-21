@@ -33,7 +33,11 @@ export function GenreChips({ genres, selected, onSelect }: Props) {
             onPress={() => onSelect(chip.value)}
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
-            style={({ pressed }) => [styles.chip, isSelected && styles.chipSelected, pressed && pressedStyle]}
+            style={({ pressed }) => [
+              styles.chip,
+              isSelected && styles.chipSelected,
+              pressed && pressedStyle,
+            ]}
           >
             <Text style={[styles.label, isSelected && styles.labelSelected]}>{chip.label}</Text>
           </Pressable>

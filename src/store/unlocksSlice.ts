@@ -9,12 +9,16 @@ type UnlocksState = {
   unlockedEpisodeIds: string[]; // see getEpisodeId
   unlockedSeriesIds: string[];
   purchasingSeasonId: string | null; // set while the mocked season purchase runs
+  premium: boolean; // Premium Membership: every episode of every series
+  purchasingPremium: boolean;
 };
 
 const initialState: UnlocksState = {
   unlockedEpisodeIds: [],
   unlockedSeriesIds: [],
   purchasingSeasonId: null,
+  premium: false,
+  purchasingPremium: false,
 };
 
 // Episodes are identified by series and 0-based index
@@ -52,6 +56,12 @@ export const purchaseSeason = createAsyncThunk(
   },
 );
 
+// Premium Membership, EUR 9.99 per month: a mocked purchase (about 1 s) that unlocks everything.
+// In production this is a StoreKit / Play Billing subscription with server-side validation.
+export const purchasePremium = createAsyncThunk("unlocks/purchasePremium", async () => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+});
+
 function addUnlockedSeries(state: UnlocksState, seriesId: string) {
   if (!state.unlockedSeriesIds.includes(seriesId)) state.unlockedSeriesIds.push(seriesId);
 }
@@ -77,6 +87,16 @@ const unlocksSlice = createSlice({
       })
       .addCase(purchaseSeason.rejected, (state) => {
         state.purchasingSeasonId = null;
+      })
+      .addCase(purchasePremium.pending, (state) => {
+        state.purchasingPremium = true;
+      })
+      .addCase(purchasePremium.fulfilled, (state) => {
+        state.purchasingPremium = false;
+        state.premium = true;
+      })
+      .addCase(purchasePremium.rejected, (state) => {
+        state.purchasingPremium = false;
       });
   },
 });
@@ -84,7 +104,7 @@ const unlocksSlice = createSlice({
 export default unlocksSlice.reducer;
 
 export const isSeasonUnlocked = (state: RootState, seriesId: string) =>
-  state.unlocks.unlockedSeriesIds.includes(seriesId);
+  state.unlocks.premium || state.unlocks.unlockedSeriesIds.includes(seriesId);
 
 // The only place that decides whether an episode is locked: components must use this
 export function isEpisodeLocked(state: RootState, seriesId: string, index: number) {

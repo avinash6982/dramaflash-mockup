@@ -12,3 +12,8 @@ export function formatCount(count: number, language: string): string {
     notation: "compact",
   }).format(count);
 }
+
+// Whole number with the language's grouping: "6,000" in English, "6.000" in German
+export function formatNumber(value: number, language: string): string {
+  return new Intl.NumberFormat(language === "de" ? "de-DE" : "en").format(value);
+}

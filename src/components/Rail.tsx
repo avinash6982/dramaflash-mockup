@@ -24,10 +24,7 @@ export function Rail({ title, series, onPressSeries, showSeeAll = true }: Props)
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         {showSeeAll && (
-          <Pressable
-            style={({ pressed }) => pressed && pressedStyle}
-            accessibilityRole="button"
-          >
+          <Pressable style={({ pressed }) => pressed && pressedStyle} accessibilityRole="button">
             <Text style={styles.seeAll}>{t("home.seeAll")}</Text>
           </Pressable>
         )}

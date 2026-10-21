@@ -2,7 +2,7 @@
 
 A clickable mock-up of a short-drama streaming app, built for the TargetVideo (DramaFlash) Mobile App Developer interview, Option A, from the supplied screen design. It has the home feed, a vertical player that locks after the cliffhanger, and a full unlock flow paid with coins. On top of that I built a small gamification feature, the **Streak Token reward flip** (see below).
 
-- **Web:** <WEB LINK> (best on a phone; on a desktop the app stays a centred phone-width column)
+- **Web:** https://avinash6982.github.io/dramaflash-mockup/ (best on a phone; on a desktop the app stays a centred phone-width column)
 - **Phone:** Expo Go on SDK 57, see "Run it"
 
 Everything is mocked: there is no backend, no real payment and no real video. More screenshots are in [`docs/screenshots`](docs/screenshots/INDEX.md).

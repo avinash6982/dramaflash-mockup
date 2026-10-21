@@ -9,6 +9,9 @@ export const de: typeof en = {
     library: "Bibliothek",
     profile: "Profil",
   },
+  common: {
+    comingSoon: "Demnächst",
+  },
   home: {
     watchNow: "Jetzt ansehen",
     seeAll: "Alle ansehen",
@@ -16,6 +19,12 @@ export const de: typeof en = {
     forbiddenLove: "Verbotene Liebe",
     popularMicroDramas: "Beliebte Mikrodramen",
     mostWatched: "Meistgesehen",
+    all: "Alle",
+    spotlight: "Spotlight",
+    epsShort: "{{count}} Folgen",
+    minPerEp: "{{count}} Min.",
+    romance: "Romantik",
+    noResults: "Noch nichts in diesem Genre",
     episodes: "{{count}} Episoden",
   },
 };

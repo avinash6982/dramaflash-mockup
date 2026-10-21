@@ -1,6 +1,6 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ import { Provider } from "react-redux";
 import { initI18n } from "@/i18n";
 import { store } from "@/store";
 import { colors } from "@/theme/colors";
+import { navigationTheme } from "@/theme/navigationTheme";
 import { fontAssets } from "@/theme/typography";
 
 // Keep the splash screen up until the saved language and the fonts are loaded
@@ -33,17 +34,14 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.background },
-            }}
-          />
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
+      <ThemeProvider value={navigationTheme}>
+        <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+          <BottomSheetModalProvider>
+            <StatusBar style="light" />
+            <Stack screenOptions={{ headerShown: false }} />
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </ThemeProvider>
     </Provider>
   );
 }

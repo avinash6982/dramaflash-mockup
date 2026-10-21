@@ -229,12 +229,23 @@ export const series: Series[] = [
   },
 ];
 
-// Home screen rails, in display order
-export const homeRails = [
-  { key: "trendingRomance", seriesIds: ["der-ceo-und-ich", "mein-geheimes-leben", "liebe-auf-umwegen"] },
-  { key: "forbiddenLove", seriesIds: ["blutige-rosen", "schattenkuss", "dunkle-begierde"] },
-  { key: "mostWatched", seriesIds: ["racheengel", "schicksalsband", "zweite-chance"] },
+// Home screen layout, in display order: sections that hold rails of series
+export const homeSections = [
+  {
+    key: "romance",
+    rails: [
+      { key: "trendingRomance", seriesIds: ["der-ceo-und-ich", "mein-geheimes-leben", "liebe-auf-umwegen"] },
+      { key: "forbiddenLove", seriesIds: ["blutige-rosen", "schattenkuss", "dunkle-begierde"] },
+    ],
+  },
+  {
+    key: "popularMicroDramas",
+    rails: [{ key: "mostWatched", seriesIds: ["racheengel", "schicksalsband", "zweite-chance"] }],
+  },
 ] as const;
+
+// Genre chips under the hero ("All" is added by the screen)
+export const homeGenres = ["Romance", "Drama", "Action", "Mystery"];
 
 export const heroSeriesId = "verbotene-liebe";
 export const alsoLikeSeriesIds = ["forbidden-vows", "love-in-the-fast-lane", "the-heirs-dilemma"];

@@ -7,6 +7,9 @@ export const en = {
     library: "Library",
     profile: "Profile",
   },
+  common: {
+    comingSoon: "Coming soon",
+  },
   home: {
     watchNow: "Watch now",
     seeAll: "See all",
@@ -14,6 +17,12 @@ export const en = {
     forbiddenLove: "Forbidden Love",
     popularMicroDramas: "Popular Micro Dramas",
     mostWatched: "Most Watched",
+    all: "All",
+    spotlight: "Spotlight",
+    epsShort: "{{count}} Eps",
+    minPerEp: "{{count}}m/ep",
+    romance: "Romance",
+    noResults: "Nothing in this genre yet",
     episodes: "{{count}} episodes",
   },
 };

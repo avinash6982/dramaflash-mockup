@@ -10,7 +10,10 @@ type UnlocksState = {
   unlockedSeriesIds: string[];
   purchasingSeasonId: string | null; // set while the mocked season purchase runs
   premium: boolean; // Premium Membership: every episode of every series
-  purchasingPremium: boolean;
+  premiumRenewsOn: number | null; // next renewal, or the end of paid access once cancelled
+  premiumCancelled: boolean; // a cancelled member keeps access until premiumRenewsOn
+  premiumBusy: boolean; // a mocked purchase or cancellation is running
+  membershipSheetRequest: number; // each tap on Subscribe adds 1 (the sheet opens when it goes up)
 };
 
 const initialState: UnlocksState = {
@@ -18,8 +21,13 @@ const initialState: UnlocksState = {
   unlockedSeriesIds: [],
   purchasingSeasonId: null,
   premium: false,
-  purchasingPremium: false,
+  premiumRenewsOn: null,
+  premiumCancelled: false,
+  premiumBusy: false,
+  membershipSheetRequest: 0,
 };
+
+const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 
 // Episodes are identified by series and 0-based index
 export const getEpisodeId = (seriesId: string, index: number) => `${seriesId}:${index}`;
@@ -62,6 +70,12 @@ export const purchasePremium = createAsyncThunk("unlocks/purchasePremium", async
   await new Promise((resolve) => setTimeout(resolve, 1000));
 });
 
+// Like the app stores: cancelling stops the renewal but keeps the access until the paid month ends.
+// In production the store owns the subscription (the app would open its manage-subscription page).
+export const cancelPremium = createAsyncThunk("unlocks/cancelPremium", async () => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+});
+
 function addUnlockedSeries(state: UnlocksState, seriesId: string) {
   if (!state.unlockedSeriesIds.includes(seriesId)) state.unlockedSeriesIds.push(seriesId);
 }
@@ -69,7 +83,11 @@ function addUnlockedSeries(state: UnlocksState, seriesId: string) {
 const unlocksSlice = createSlice({
   name: "unlocks",
   initialState,
-  reducers: {},
+  reducers: {
+    openMembershipSheet: (state) => {
+      state.membershipSheetRequest += 1;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(unlockEpisode.fulfilled, (state, action) => {
@@ -89,18 +107,31 @@ const unlocksSlice = createSlice({
         state.purchasingSeasonId = null;
       })
       .addCase(purchasePremium.pending, (state) => {
-        state.purchasingPremium = true;
+        state.premiumBusy = true;
       })
       .addCase(purchasePremium.fulfilled, (state) => {
-        state.purchasingPremium = false;
+        state.premiumBusy = false;
         state.premium = true;
+        state.premiumCancelled = false;
+        state.premiumRenewsOn = Date.now() + ONE_MONTH_MS;
       })
       .addCase(purchasePremium.rejected, (state) => {
-        state.purchasingPremium = false;
+        state.premiumBusy = false;
+      })
+      .addCase(cancelPremium.pending, (state) => {
+        state.premiumBusy = true;
+      })
+      .addCase(cancelPremium.fulfilled, (state) => {
+        state.premiumBusy = false;
+        state.premiumCancelled = true; // premium stays true until premiumRenewsOn
+      })
+      .addCase(cancelPremium.rejected, (state) => {
+        state.premiumBusy = false;
       });
   },
 });
 
+export const { openMembershipSheet } = unlocksSlice.actions;
 export default unlocksSlice.reducer;
 
 export const isSeasonUnlocked = (state: RootState, seriesId: string) =>
@@ -111,4 +142,12 @@ export function isEpisodeLocked(state: RootState, seriesId: string, index: numbe
   if (index < getSeries(seriesId).freeEpisodes) return false;
   if (isSeasonUnlocked(state, seriesId)) return false;
   return !state.unlocks.unlockedEpisodeIds.includes(getEpisodeId(seriesId, index));
+}
+
+export type MembershipStatus = "none" | "active" | "cancelled";
+
+// "cancelled" still has access: premium stays true until the renewal date passes
+export function membershipStatus(state: RootState): MembershipStatus {
+  if (!state.unlocks.premium) return "none";
+  return state.unlocks.premiumCancelled ? "cancelled" : "active";
 }

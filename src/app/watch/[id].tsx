@@ -6,6 +6,7 @@ import type { LayoutChangeEvent, ViewToken } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { CoinBalanceChip } from "@/components/CoinBalanceChip";
 import { EpisodePage } from "@/components/EpisodePage";
 import { LockSheet } from "@/components/LockSheet";
 import { SwipeHint } from "@/components/SwipeHint";
@@ -107,6 +108,10 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
 
       {height > 0 && series.episodes.length > 1 && <SwipeHint hidden={swiped} />}
 
+      <View style={[styles.chip, { top: insets.top + 8 }]}>
+        <CoinBalanceChip />
+      </View>
+
       <LockSheet />
 
       <Pressable
@@ -123,6 +128,7 @@ function Feed({ series, startIndex }: { series: Series; startIndex: number }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  chip: { position: "absolute", right: 20 },
   back: {
     position: "absolute",
     left: 20,

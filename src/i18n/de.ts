@@ -30,6 +30,7 @@ export const de: typeof en = {
     addToFavourites: "Zu Favoriten hinzufügen",
   },
   lockSheet: {
+    perMonthShort: "/ Monat",
     episode: "Folge {{number}}",
     locked: "Gesperrt",
     title: "Die Romanze geht weiter",
@@ -60,8 +61,27 @@ export const de: typeof en = {
     secureCheckout: "Sicherer Checkout",
     buy: "{{amount}} Coins kaufen",
     buyFor: "für {{price}}",
-    terms: "Mit dem Kauf stimmst du unseren Nutzungsbedingungen zu. Abonnements verlängern sich automatisch, sofern du sie nicht kündigst.",
+    terms:
+      "Mit dem Kauf stimmst du unseren Nutzungsbedingungen zu. Abonnements verlängern sich automatisch, sofern du sie nicht kündigst.",
     close: "Zurück",
+  },
+  profile: {
+    coinBalance: "Coin-Guthaben",
+    recharge: "Aufladen",
+    membership: "Mitgliedschaft",
+    premiumNone: "Nicht abonniert",
+    premiumActive: "Premium-Mitgliedschaft",
+    renewsOn: "Verlängert sich am {{date}}",
+    subscribe: "Abonnieren",
+    cancelMembership: "Mitgliedschaft kündigen",
+    cancelQuestion: "Mitgliedschaft kündigen? Du behältst den Zugriff bis {{date}}.",
+    accessUntil: "Gekündigt, Zugriff bis {{date}}",
+    resubscribe: "Erneut abonnieren",
+    resetDemo: "Demo-Daten zurücksetzen",
+    resetNote:
+      "Zum Testen: Coins, Freischaltungen, Mitgliedschaft und Favoriten werden zurückgesetzt.",
+    keep: "Behalten",
+    confirmCancel: "Ja, kündigen",
   },
   favourites: {
     emptyTitle: "Noch nichts gespeichert",

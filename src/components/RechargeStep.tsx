@@ -1,25 +1,22 @@
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { coinPacks, MEMBERSHIP } from "@/data/coinPacks";
 import { findSeries } from "@/data/series";
 import { useLocalized } from "@/hooks/useLocalized";
 import { useRechargeSelection } from "@/hooks/useRechargeSelection";
-import { formatEuro, formatNumber } from "@/i18n/format";
+import { formatNumber } from "@/i18n/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { purchasePremium } from "@/store/unlocksSlice";
 import { colors } from "@/theme/colors";
-import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
+import { IMAGE_FADE_MS } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
-import { CoinPackCard } from "./CoinPackCard";
+import { CoinPackGrid } from "./CoinPackGrid";
+import { MembershipCard } from "./MembershipCard";
 
-const COLUMNS = 2;
 const SIDE_PADDING = 20;
-const GAP = 12;
 
 type Props = {
   chosenPackId: string | null; // null: the recommended pack
@@ -36,12 +33,10 @@ export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }:
   const localized = useLocalized();
   const dispatch = useAppDispatch();
   const { seriesId, episodeIndex, unlockChoice } = useAppSelector((state) => state.player);
-  const purchasingPremium = useAppSelector((state) => state.unlocks.purchasingPremium);
-  const [width, setWidth] = useState(0);
+  const purchasingPremium = useAppSelector((state) => state.unlocks.premiumBusy);
 
   const series = findSeries(seriesId ?? undefined);
   const { cost, coins, missing, pack } = useRechargeSelection(chosenPackId);
-  const cardWidth = Math.floor((width - SIDE_PADDING * 2 - GAP * (COLUMNS - 1)) / COLUMNS);
 
   // Mocked EUR 9.99 purchase that unlocks every episode; no coins involved
   const getPremium = async () => {
@@ -55,7 +50,7 @@ export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }:
   if (!series) return null;
 
   return (
-    <View onLayout={(event) => setWidth(event.nativeEvent.layout.width)} style={styles.content}>
+    <View style={styles.content}>
       <View style={styles.header}>
         <Pressable
           onPress={onBack}
@@ -107,19 +102,7 @@ export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }:
       )}
 
       <Text style={styles.sectionTitle}>{t("recharge.rechargeCoins")}</Text>
-      {width > 0 && (
-        <View style={styles.grid}>
-          {coinPacks.map((item) => (
-            <CoinPackCard
-              key={item.id}
-              pack={item}
-              width={cardWidth}
-              selected={item.id === pack.id}
-              onPress={() => onChoosePack(item.id)}
-            />
-          ))}
-        </View>
-      )}
+      <CoinPackGrid selectedId={pack.id} onSelect={onChoosePack} />
 
       <View style={styles.or}>
         <View style={styles.orLine} />
@@ -127,27 +110,9 @@ export function RechargeStep({ chosenPackId, onChoosePack, onBack, onUnlocked }:
         <View style={styles.orLine} />
       </View>
 
-      <Pressable
-        style={({ pressed }) => [styles.premium, pressed && pressedStyle]}
-        onPress={getPremium}
-        disabled={purchasingPremium}
-        accessibilityRole="button"
-      >
-        <View style={styles.premiumIcon}>
-          <MaterialCommunityIcons name="crown-outline" size={22} color={colors.textPrimary} />
-        </View>
-        <View style={styles.premiumText}>
-          <Text style={styles.premiumTitle}>{t("lockSheet.premium")}</Text>
-          <Text style={styles.premiumNote}>{t("lockSheet.premiumNote")}</Text>
-        </View>
-        {purchasingPremium ? (
-          <ActivityIndicator color={colors.textPrimary} />
-        ) : (
-          <Text style={styles.premiumPrice}>
-            {t("lockSheet.perMonth", { price: formatEuro(MEMBERSHIP.priceEur, i18n.language) })}
-          </Text>
-        )}
-      </Pressable>
+      <View style={styles.premiumWrap}>
+        <MembershipCard onPress={getPremium} busy={purchasingPremium} />
+      </View>
     </View>
   );
 }
@@ -218,7 +183,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: colors.textPrimary,
   },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP, paddingHorizontal: SIDE_PADDING },
   or: {
     flexDirection: "row",
     alignItems: "center",
@@ -233,28 +197,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: colors.textMuted,
   },
-  premium: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginHorizontal: SIDE_PADDING,
-    marginTop: 14,
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.accent,
-    backgroundColor: "rgba(203,100,247,0.1)",
-  },
-  premiumIcon: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 22,
-    backgroundColor: colors.background,
-  },
-  premiumText: { flex: 1, gap: 2 },
-  premiumTitle: { fontFamily: fonts.display, fontSize: 17, color: colors.textPrimary },
-  premiumNote: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted },
-  premiumPrice: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.textPrimary },
+  premiumWrap: { marginHorizontal: SIDE_PADDING, marginTop: 14 },
 });

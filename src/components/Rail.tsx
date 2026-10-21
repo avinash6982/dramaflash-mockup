@@ -3,23 +3,34 @@ import { useTranslation } from "react-i18next";
 
 import type { Series } from "@/data/series";
 import { colors } from "@/theme/colors";
+import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 import { PosterCard } from "./PosterCard";
 
-type Props = { title: string; series: Series[]; onPressSeries: (id: string) => void };
+type Props = {
+  title: string;
+  series: Series[];
+  onPressSeries: (id: string) => void;
+  showSeeAll?: boolean;
+};
 
 // A titled row of posters that scrolls sideways
-export function Rail({ title, series, onPressSeries }: Props) {
+export function Rail({ title, series, onPressSeries, showSeeAll = true }: Props) {
   const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <Pressable accessibilityRole="button">
-          <Text style={styles.seeAll}>{t("home.seeAll")}</Text>
-        </Pressable>
+        {showSeeAll && (
+          <Pressable
+            style={({ pressed }) => pressed && pressedStyle}
+            accessibilityRole="button"
+          >
+            <Text style={styles.seeAll}>{t("home.seeAll")}</Text>
+          </Pressable>
+        )}
       </View>
       <FlatList
         horizontal

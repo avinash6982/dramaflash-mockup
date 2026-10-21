@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import type { Series } from "@/data/series";
 import { colors } from "@/theme/colors";
+import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 export const POSTER_WIDTH = 128;
@@ -17,9 +18,19 @@ export function PosterCard({ series, onPress }: Props) {
   const { t } = useTranslation();
 
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={series.title}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => pressed && pressedStyle}
+      accessibilityRole="button"
+      accessibilityLabel={series.title}
+    >
       <View style={styles.poster}>
-        <Image source={series.poster} style={StyleSheet.absoluteFill} contentFit="cover" />
+        <Image
+          source={series.poster}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={IMAGE_FADE_MS}
+        />
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.85)"]}
           style={styles.bottomFade}

@@ -12,6 +12,20 @@ export const de: typeof en = {
   common: {
     comingSoon: "Demnächst",
   },
+  series: {
+    playEpisode: "Folge {{number}} ansehen",
+    synopsis: "Handlung",
+    whyYoullLoveIt: "Darum wirst du sie lieben",
+    castAndCrew: "Besetzung",
+    episodes: "Episoden",
+    unlockFullSeason: "Ganze Staffel freischalten",
+    saveWithBundle: "40 % sparen mit dem Paket",
+    unlock: "Freischalten",
+    youMightAlsoLike: "Das könnte dir auch gefallen",
+    back: "Zurück",
+    share: "Teilen",
+    addToFavourites: "Zu Favoriten hinzufügen",
+  },
   home: {
     watchNow: "Jetzt ansehen",
     seeAll: "Alle ansehen",

@@ -37,6 +37,11 @@ export const en = {
     action: "Action",
     mystery: "Mystery",
   },
+  player: {
+    episodeShort: "Ep {{number}}",
+    unlockEpisode: "Unlock Episode {{number}}",
+    like: "Like",
+  },
   home: {
     watchNow: "Watch now",
     seeAll: "See all",

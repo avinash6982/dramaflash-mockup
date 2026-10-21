@@ -1,6 +1,6 @@
 import { en } from "@/i18n/en";
 import { de } from "@/i18n/de";
-import { formatEuro } from "@/i18n/formatPrice";
+import { formatEuro } from "@/i18n/format";
 import { localize } from "@/i18n/localized";
 import type { LocalizedText } from "@/i18n/localized";
 
@@ -69,6 +69,10 @@ describe("series data", () => {
       const average = s.episodes.reduce((sum, e) => sum + toSeconds(e.duration), 0) / s.episodes.length;
       expect(Math.round(average / 60)).toBe(s.minutesPerEpisode);
     }
+  });
+
+  it("gives every episode a video", () => {
+    for (const s of series) for (const e of s.episodes) expect(e.video).toBeTruthy();
   });
 
   it("never offers more listed episodes than the series has", () => {

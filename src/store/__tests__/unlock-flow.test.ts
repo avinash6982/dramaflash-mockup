@@ -1,7 +1,7 @@
 import { EPISODE_UNLOCK_COST, SEASON_UNLOCK_COST, STARTING_COINS } from "@/data/coinPacks";
 
 import { makeStore } from "../index";
-import { isEpisodeLocked, unlockEpisode, unlockSeason } from "../unlocksSlice";
+import { isEpisodeLocked, purchaseSeason, unlockEpisode, unlockSeason } from "../unlocksSlice";
 import { purchaseCoins } from "../walletSlice";
 
 const SERIES = "ceos-secret-life"; // 3 free episodes
@@ -77,5 +77,22 @@ describe("unlockSeason", () => {
     expect(isEpisodeLocked(state, SERIES, 5)).toBe(false);
     expect(state.wallet.coins).toBe(STARTING_COINS + 2700 - SEASON_UNLOCK_COST);
     expect(state.wallet.transactions[0]).toMatchObject({ kind: "unlock", coins: -SEASON_UNLOCK_COST });
+  });
+});
+
+describe("purchaseSeason", () => {
+  it("unlocks the season without touching the coins", async () => {
+    const store = makeStore();
+    const purchase = store.dispatch(purchaseSeason(SERIES));
+    expect(store.getState().unlocks.purchasingSeasonId).toBe(SERIES);
+
+    jest.advanceTimersByTime(1000);
+    await purchase;
+
+    const state = store.getState();
+    expect(state.unlocks.purchasingSeasonId).toBeNull();
+    expect(isEpisodeLocked(state, SERIES, 5)).toBe(false);
+    expect(state.wallet.coins).toBe(STARTING_COINS);
+    expect(state.wallet.transactions).toHaveLength(0);
   });
 });

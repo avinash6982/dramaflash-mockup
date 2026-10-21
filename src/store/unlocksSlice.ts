@@ -8,9 +8,14 @@ import type { RootState } from "./index";
 type UnlocksState = {
   unlockedEpisodeIds: string[]; // see getEpisodeId
   unlockedSeriesIds: string[];
+  purchasingSeasonId: string | null; // set while the mocked season purchase runs
 };
 
-const initialState: UnlocksState = { unlockedEpisodeIds: [], unlockedSeriesIds: [] };
+const initialState: UnlocksState = {
+  unlockedEpisodeIds: [],
+  unlockedSeriesIds: [],
+  purchasingSeasonId: null,
+};
 
 // Episodes are identified by series and 0-based index
 export const getEpisodeId = (seriesId: string, index: number) => `${seriesId}:${index}`;
@@ -37,6 +42,20 @@ export const unlockSeason = createAsyncThunk<
   return { seriesId, cost: SEASON_UNLOCK_COST };
 });
 
+// The "Unlock Full Season €9.99" banner: a mocked real-money purchase that does not touch the coins.
+// In production this is StoreKit / Play Billing with server-side receipt validation.
+export const purchaseSeason = createAsyncThunk(
+  "unlocks/purchaseSeason",
+  async (seriesId: string) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return seriesId;
+  },
+);
+
+function addUnlockedSeries(state: UnlocksState, seriesId: string) {
+  if (!state.unlockedSeriesIds.includes(seriesId)) state.unlockedSeriesIds.push(seriesId);
+}
+
 const unlocksSlice = createSlice({
   name: "unlocks",
   initialState,
@@ -47,16 +66,29 @@ const unlocksSlice = createSlice({
         state.unlockedEpisodeIds.push(action.payload.episodeId);
       })
       .addCase(unlockSeason.fulfilled, (state, action) => {
-        state.unlockedSeriesIds.push(action.payload.seriesId);
+        addUnlockedSeries(state, action.payload.seriesId);
+      })
+      .addCase(purchaseSeason.pending, (state, action) => {
+        state.purchasingSeasonId = action.meta.arg;
+      })
+      .addCase(purchaseSeason.fulfilled, (state, action) => {
+        state.purchasingSeasonId = null;
+        addUnlockedSeries(state, action.payload);
+      })
+      .addCase(purchaseSeason.rejected, (state) => {
+        state.purchasingSeasonId = null;
       });
   },
 });
 
 export default unlocksSlice.reducer;
 
+export const isSeasonUnlocked = (state: RootState, seriesId: string) =>
+  state.unlocks.unlockedSeriesIds.includes(seriesId);
+
 // The only place that decides whether an episode is locked: components must use this
 export function isEpisodeLocked(state: RootState, seriesId: string, index: number) {
   if (index < getSeries(seriesId).freeEpisodes) return false;
-  if (state.unlocks.unlockedSeriesIds.includes(seriesId)) return false;
+  if (isSeasonUnlocked(state, seriesId)) return false;
   return !state.unlocks.unlockedEpisodeIds.includes(getEpisodeId(seriesId, index));
 }

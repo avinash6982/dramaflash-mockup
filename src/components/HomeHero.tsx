@@ -7,6 +7,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Series } from "@/data/series";
 import { colors } from "@/theme/colors";
+import { IMAGE_FADE_MS, pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 type Props = { series: Series; onWatch: () => void };
@@ -18,7 +19,12 @@ export function HomeHero({ series, onWatch }: Props) {
 
   return (
     <View style={styles.container}>
-      <Image source={series.poster} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image
+        source={series.poster}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        transition={IMAGE_FADE_MS}
+      />
       <LinearGradient
         colors={["transparent", colors.background]}
         locations={[0.35, 1]}
@@ -44,12 +50,16 @@ export function HomeHero({ series, onWatch }: Props) {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.watchButton} onPress={onWatch} accessibilityRole="button">
+          <Pressable
+            style={({ pressed }) => [styles.watchButton, pressed && pressedStyle]}
+            onPress={onWatch}
+            accessibilityRole="button"
+          >
             <Ionicons name="play-outline" size={18} color={colors.onPrimary} />
             <Text style={styles.watchText}>{t("home.watchNow")}</Text>
           </Pressable>
           <Pressable
-            style={styles.addButton}
+            style={({ pressed }) => [styles.addButton, pressed && pressedStyle]}
             onPress={() => setInMyList((value) => !value)}
             accessibilityRole="button"
           >

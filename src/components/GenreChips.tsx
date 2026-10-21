@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { colors } from "@/theme/colors";
+import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 type Props = {
@@ -28,7 +29,7 @@ export function GenreChips({ genres, selected, onSelect }: Props) {
             onPress={() => onSelect(chip.value)}
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
-            style={[styles.chip, isSelected && styles.chipSelected]}
+            style={({ pressed }) => [styles.chip, isSelected && styles.chipSelected, pressed && pressedStyle]}
           >
             <Text style={[styles.label, isSelected && styles.labelSelected]}>{chip.label}</Text>
           </Pressable>

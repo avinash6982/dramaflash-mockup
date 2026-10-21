@@ -19,6 +19,7 @@ export type Series = {
   synopsis: string;
   genres: string[];
   rating: number;
+  ratingCount: string; // shown as "(12k)"
   year: number;
   totalEpisodes: number;
   minutesPerEpisode: number;
@@ -55,7 +56,7 @@ const shared = {
   ],
 };
 
-const base = { year: 2024, freeEpisodes: 3, ...shared };
+const base = { year: 2024, ratingCount: "12k", freeEpisodes: 3, ...shared };
 
 export const series: Series[] = [
   {
@@ -250,8 +251,14 @@ export const homeGenres = ["Romance", "Drama", "Action", "Mystery"];
 export const heroSeriesId = "verbotene-liebe";
 export const alsoLikeSeriesIds = ["forbidden-vows", "love-in-the-fast-lane", "the-heirs-dilemma"];
 
+// For route params, which can be missing or wrong (bad link, screen closing)
+export function findSeries(id: string | undefined): Series | undefined {
+  return series.find((s) => s.id === id);
+}
+
+// For code that only passes ids from this file's own data
 export function getSeries(id: string): Series {
-  const found = series.find((s) => s.id === id);
+  const found = findSeries(id);
   if (!found) throw new Error(`Unknown series: ${id}`);
   return found;
 }

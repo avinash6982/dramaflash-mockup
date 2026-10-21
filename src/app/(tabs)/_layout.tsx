@@ -29,7 +29,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: { fontFamily: fonts.bodyMedium, fontSize: 11 },
+        tabBarLabelStyle: { fontFamily: fonts.bodyMedium, fontSize: 10 }, // small enough for "Entdecken" on a 320 px phone
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,

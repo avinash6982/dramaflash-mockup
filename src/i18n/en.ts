@@ -10,6 +10,20 @@ export const en = {
   common: {
     comingSoon: "Coming soon",
   },
+  series: {
+    playEpisode: "Play Ep {{number}}",
+    synopsis: "Synopsis",
+    whyYoullLoveIt: "Why you'll love it",
+    castAndCrew: "Cast & Crew",
+    episodes: "Episodes",
+    unlockFullSeason: "Unlock Full Season",
+    saveWithBundle: "Save 40% with the bundle",
+    unlock: "Unlock",
+    youMightAlsoLike: "You might also like",
+    back: "Back",
+    share: "Share",
+    addToFavourites: "Add to favourites",
+  },
   home: {
     watchNow: "Watch now",
     seeAll: "See all",

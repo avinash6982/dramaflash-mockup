@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { setLanguage } from "@/i18n";
 import { colors } from "@/theme/colors";
+import { pressedStyle } from "@/theme/interaction";
 import { fonts } from "@/theme/typography";
 
 type Props = { solid: boolean }; // solid once the page has scrolled past the hero
@@ -37,7 +38,7 @@ export function HomeHeader({ solid }: Props) {
 
       <View style={styles.actions}>
         <Pressable
-          style={styles.language}
+          style={({ pressed }) => [styles.language, pressed && pressedStyle]}
           onPress={() => setLanguage(isGerman ? "en" : "de")}
           accessibilityRole="button"
           accessibilityLabel="Language"

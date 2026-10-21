@@ -27,7 +27,7 @@ export function UnlockChoiceStep({ onUnlocked, onNeedCoins, onMaybeLater }: Prop
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { seriesId, episodeIndex, unlockChoice } = useAppSelector((state) => state.player);
-  const purchasingPremium = useAppSelector((state) => state.unlocks.purchasingPremium);
+  const purchasingPremium = useAppSelector((state) => state.unlocks.premiumBusy);
 
   const series = findSeries(seriesId ?? undefined);
 

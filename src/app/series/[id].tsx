@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { CoinBalanceChip } from "@/components/CoinBalanceChip";
 import { EpisodeRow } from "@/components/EpisodeRow";
 import { Rail } from "@/components/Rail";
 import { SeasonBanner } from "@/components/SeasonBanner";
@@ -229,6 +230,7 @@ function SeriesDetail({ series }: { series: Series }) {
         >
           <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
         </Pressable>
+        <CoinBalanceChip />
         <Pressable
           style={({ pressed }) => [styles.topButton, pressed && pressedStyle]}
           onPress={share}

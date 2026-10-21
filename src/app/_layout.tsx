@@ -9,7 +9,9 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 
 import { AppFrame } from "@/components/AppFrame";
+import { BuyCoinsSheet } from "@/components/BuyCoinsSheet";
 import { ErrorScreen } from "@/components/ErrorScreen";
+import { MembershipSheet } from "@/components/MembershipSheet";
 import { initI18n } from "@/i18n";
 import { store } from "@/store";
 import { colors } from "@/theme/colors";
@@ -49,6 +51,8 @@ export default function RootLayout() {
             <BottomSheetModalProvider>
               <StatusBar style="light" />
               <Stack screenOptions={{ headerShown: false }} />
+              <BuyCoinsSheet />
+              <MembershipSheet />
             </BottomSheetModalProvider>
           </GestureHandlerRootView>
         </AppFrame>

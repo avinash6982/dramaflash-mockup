@@ -1,8 +1,8 @@
 import { recommendedPack, STARTING_COINS } from "@/data/coinPacks";
-import { makeStore } from "../index";
+import { hasDemoChanges, makeStore, resetDemo } from "../index";
 import { setEpisode, setUnlockChoice } from "../playerSlice";
 import { buyPackAndUnlock, unlockSelected } from "../unlockFlow";
-import { isEpisodeLocked } from "../unlocksSlice";
+import { cancelPremium, isEpisodeLocked, membershipStatus, purchasePremium } from "../unlocksSlice";
 
 const SERIES = "ceos-secret-life"; // 3 free episodes
 
@@ -77,5 +77,43 @@ describe("recommendedPack", () => {
   it("otherwise the smallest pack that covers it, or the biggest one", () => {
     expect(recommendedPack(1185).id).toBe("pack-2500"); // the season with 15 coins in the wallet
     expect(recommendedPack(999999).id).toBe("pack-6000"); // nothing covers it
+  });
+});
+
+describe("membership", () => {
+  it("goes from none to active, cancelled (access kept) and active again", async () => {
+    const store = makeStore();
+    expect(membershipStatus(store.getState())).toBe("none");
+
+    await finish(store.dispatch(purchasePremium()));
+    expect(membershipStatus(store.getState())).toBe("active");
+    expect(store.getState().unlocks.premiumRenewsOn).toBeGreaterThan(Date.now());
+
+    await finish(store.dispatch(cancelPremium()));
+    expect(membershipStatus(store.getState())).toBe("cancelled");
+    // a cancelled member keeps access until the end of the paid month
+    expect(isEpisodeLocked(store.getState(), SERIES, 10)).toBe(false);
+
+    await finish(store.dispatch(purchasePremium()));
+    expect(membershipStatus(store.getState())).toBe("active");
+  });
+});
+
+describe("resetDemo", () => {
+  it("puts coins, unlocks, membership and favourites back to the start", async () => {
+    const store = openLockedEpisode();
+    await finish(store.dispatch(buyPackAndUnlock("pack-800")));
+    await finish(store.dispatch(purchasePremium()));
+    expect(store.getState().wallet.coins).not.toBe(STARTING_COINS);
+
+    expect(hasDemoChanges(store.getState())).toBe(true);
+    store.dispatch(resetDemo());
+    expect(hasDemoChanges(store.getState())).toBe(false); // nothing left to reset
+
+    const state = store.getState();
+    expect(state.wallet.coins).toBe(STARTING_COINS);
+    expect(state.wallet.transactions).toHaveLength(0);
+    expect(membershipStatus(state)).toBe("none");
+    expect(isEpisodeLocked(state, SERIES, 3)).toBe(true);
   });
 });

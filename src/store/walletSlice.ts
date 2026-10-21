@@ -15,12 +15,15 @@ type WalletState = {
   coins: number;
   purchaseStatus: "idle" | "purchasing";
   transactions: Transaction[];
+  // Each tap that wants the Buy coins sheet adds 1 (same idea as the unlock sheet's request counter)
+  buyCoinsRequest: number;
 };
 
 const initialState: WalletState = {
   coins: STARTING_COINS,
   purchaseStatus: "idle",
   transactions: [],
+  buyCoinsRequest: 0,
 };
 
 // Mocked store purchase: waits about a second, then returns the pack to credit.
@@ -40,7 +43,11 @@ function addTransaction(state: WalletState, kind: Transaction["kind"], coins: nu
 const walletSlice = createSlice({
   name: "wallet",
   initialState,
-  reducers: {},
+  reducers: {
+    openBuyCoinsSheet: (state) => {
+      state.buyCoinsRequest += 1;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(purchaseCoins.pending, (state) => {
@@ -62,4 +69,5 @@ const walletSlice = createSlice({
   },
 });
 
+export const { openBuyCoinsSheet } = walletSlice.actions;
 export default walletSlice.reducer;
